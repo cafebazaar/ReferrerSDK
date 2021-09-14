@@ -1,0 +1,24 @@
+ext {
+
+    libraryVersions = [
+            'kotlin'   : '1.5.20',
+            'appcompat': '1.2.0'
+    ]
+
+    pluginVersions = [
+            'gradle'      : '7.0.0-rc01',
+            'bintray'     : '1.2',
+            'androidmaven': '1.4.1',
+            'detekt'      : '1.1.1'
+    ]
+
+    buildVersions = [
+            'compileSdkVersion': 30,
+            'buildToolsVersion': '31.0.0',
+            'minSdkVersion'    : 21,
+            'targetSdkVersion' : 30
+    ]
+
+    referrerSDKVersion = "1.2.2"
+
+}
