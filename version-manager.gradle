@@ -19,6 +19,6 @@ ext {
             'targetSdkVersion' : 30
     ]
 
-    referrerSDKVersion = "1.2.2"
+    referrerSDKVersion = "1.0.0"
 
 }
