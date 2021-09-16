@@ -1,5 +1,5 @@
 plugins {
-    id 'com.android.application'
+    id 'com.android.library'
     id 'kotlin-android'
 }
 
@@ -8,7 +8,6 @@ android {
     buildToolsVersion "31.0.0"
 
     defaultConfig {
-        applicationId "ir.cafebazaar.referrersdk"
         minSdk 21
         targetSdk 30
         versionCode 1
