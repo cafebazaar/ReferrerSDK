@@ -24,9 +24,30 @@ class MainActivity : AppCompatActivity() {
                                     applicationContext,
                                     "REFERRER:$it",
                                     Toast.LENGTH_SHORT
-                                )
+                                ).show()
                                 consumeReferrer(it.installBeginTimestampMilliseconds)
                             }
+                        }
+                        ReferrerClient.DEVELOPER_ERROR -> {
+                            Toast.makeText(
+                                applicationContext,
+                                "REFERRER:DEVELOPER_ERROR",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        ReferrerClient.FEATURE_NOT_SUPPORTED -> {
+                            Toast.makeText(
+                                applicationContext,
+                                "REFERRER:FEATURE_NOT_SUPPORTED",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        ReferrerClient.SERVICE_UNAVAILABLE -> {
+                            Toast.makeText(
+                                applicationContext,
+                                "REFERRER:SERVICE_UNAVAILABLE",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }
