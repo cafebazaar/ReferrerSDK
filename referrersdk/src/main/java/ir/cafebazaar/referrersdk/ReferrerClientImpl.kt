@@ -27,12 +27,12 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
                     when {
                         isCafeBazaarCompatible().not() -> {
                             clientState = DISCONNECTED
-                            stateListener.onReferrerSetupFinished(SERVICE_UNAVAILABLE)
+                            stateListener.onReferrerSetupFinished(FEATURE_NOT_SUPPORTED)
                         }
                         tryToConnect(stateListener) -> return
                         else -> {
                             clientState = DISCONNECTED
-                            stateListener.onReferrerSetupFinished(FEATURE_NOT_SUPPORTED)
+                            stateListener.onReferrerSetupFinished(SERVICE_UNAVAILABLE)
                         }
                     }
                 }
@@ -108,7 +108,7 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
     }
 
     companion object {
-        private const val CAFE_BAZAAR_MIN_APP_VER = 80837300
+        private const val CAFE_BAZAAR_MIN_APP_VER = 1400500
         internal const val KEY_PACKAGE_NAME = "package_name"
         internal const val SERVICE_PACKAGE_NAME = "com.farsitel.bazaar.referrerprovider"
         internal const val SERVICE_NAME =
