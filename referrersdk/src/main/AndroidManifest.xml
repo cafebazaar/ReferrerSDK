@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ir.cafebazaar.referrersdk">
 
+    <queries>
+    <package android:name="com.farsitel.bazaar.dev" />
+    </queries>
+
     <uses-permission android:name="com.farsitel.bazaar.permission.REFERRER" />
 
     <application>
