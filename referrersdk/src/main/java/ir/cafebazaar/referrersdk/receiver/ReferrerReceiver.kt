@@ -7,7 +7,7 @@ import android.content.Intent
 internal class ReferrerReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         Intent().apply {
-            action = intent!!.action + ".iab"
+            action = intent!!.action
             intent.extras?.let { bundle ->
                 putExtras(bundle)
             }
