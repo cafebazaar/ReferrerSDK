@@ -3,6 +3,7 @@ package ir.cafebazaar.referrersdk.communicators
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import ir.cafebazaar.referrersdk.AbortableCountDownLatch
 import ir.cafebazaar.referrersdk.ClientState
 import ir.cafebazaar.referrersdk.ClientState.Companion.CONNECTED
 import ir.cafebazaar.referrersdk.ClientState.Companion.DISCONNECTED
@@ -11,16 +12,25 @@ import ir.cafebazaar.referrersdk.ReferrerClientImpl.Companion.SERVICE_PACKAGE_NA
 import ir.cafebazaar.referrersdk.ReferrerStateListener
 import ir.cafebazaar.referrersdk.receiver.ReferrerReceiver
 import ir.cafebazaar.referrersdk.receiver.ReferrerReceiverCommunicator
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class ReferrerClientConnectionBroadcast(
     override var context: Context,
     override var clientState: ClientState,
     override var stateListener: ReferrerStateListener
 ) : ReferrerClientConnectionCommunicator, ReferrerReceiverCommunicator {
+    private val abortableCountDownLatch = AbortableCountDownLatch(ABORTABLE_COUNT_DOWN_LATCH_COUNT)
     private var referrerResponse: Bundle? = null
     override val referrer: Bundle?
         get() {
-            return referrerResponse
+            return if(referrerResponse?.isEmpty == true) {
+                null
+            } else {
+                referrerResponse
+            }
         }
 
     override fun consumeReferrer(installTime: Long) {
@@ -35,7 +45,19 @@ class ReferrerClientConnectionBroadcast(
         getNewIntentForBroadcast().apply {
             action = ReferrerBroadcast.ACTION_REFERRER_GET
         }.run(::sendBroadcast)
-        return true
+        abortableCountDownLatch.await(
+            ABORTABLE_COUNT_DOWN_LATCH_COUNT_TIMEOUT_SECONDS,
+            TimeUnit.SECONDS
+        )
+        return (referrerResponse != null).apply {
+            if (this) {
+                GlobalScope.launch {
+                    delay(DELAY_BEFORE_UPDATE_STATE_MILLI_SECONDS)
+                    clientState.updateState(CONNECTED)
+                    stateListener.onReferrerSetupFinished(ReferrerClient.OK)
+                }
+            }
+        }
     }
 
     override fun stopConnection() {
@@ -61,10 +83,15 @@ class ReferrerClientConnectionBroadcast(
         when (intent?.action) {
             ReferrerBroadcast.ACTION_REFERRER_GET -> {
                 referrerResponse =
-                    intent.getBundleExtra(ReferrerBroadcast.KEY_RESPONSE)
-                clientState.updateState(CONNECTED)
-                stateListener.onReferrerSetupFinished(ReferrerClient.OK)
+                    intent.getBundleExtra(ReferrerBroadcast.KEY_RESPONSE) ?: Bundle()
+                abortableCountDownLatch.countDown()
             }
         }
+    }
+
+    companion object {
+        private const val ABORTABLE_COUNT_DOWN_LATCH_COUNT = 1
+        private const val ABORTABLE_COUNT_DOWN_LATCH_COUNT_TIMEOUT_SECONDS = 5L
+        private const val DELAY_BEFORE_UPDATE_STATE_MILLI_SECONDS = 1000L
     }
 }

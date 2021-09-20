@@ -1,7 +1,7 @@
 package ir.cafebazaar.referrersdk
 
 import android.content.Context
-import android.content.pm.PackageManager
+import android.os.Looper
 import android.os.RemoteException
 import ir.cafebazaar.referrersdk.communicators.ReferrerClientConnectionBroadcast
 import ir.cafebazaar.referrersdk.communicators.ReferrerClientConnectionCommunicator
@@ -18,6 +18,9 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
         get() = (clientState == CONNECTED).and(referrerClientConnection != null)
 
     override fun startConnection(stateListener: ReferrerStateListener) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            throw IllegalThreadStateException(OFF_MAIN_THREAD_EXCEPTION)
+        }
         if (isReady.not()) {
             when {
                 clientState == CONNECTING -> {
@@ -25,10 +28,6 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
                 }
                 clientState != CLOSED -> {
                     when {
-                        isCafeBazaarCompatible().not() -> {
-                            clientState = DISCONNECTED
-                            stateListener.onReferrerSetupFinished(FEATURE_NOT_SUPPORTED)
-                        }
                         tryToConnect(stateListener) -> return
                         else -> {
                             clientState = DISCONNECTED
@@ -69,7 +68,7 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
 
     override val referrer: ReferrerDetails?
         get() = if (isReady.not()) {
-            throw IllegalStateException("Service not connected. Please start a connection before using the service.")
+            throw IllegalStateException(SERVICE_IS_NOT_STARTED_EXCEPTION)
         } else {
             try {
                 referrerClientConnection?.referrer?.apply {
@@ -85,7 +84,7 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
 
     override fun consumeReferrer(installTime: Long) {
         if (isReady.not()) {
-            throw IllegalStateException("Service not connected. Please start a connection before using the service.")
+            throw IllegalStateException(SERVICE_IS_NOT_STARTED_EXCEPTION)
         } else {
             try {
                 referrerClientConnection?.consumeReferrer(installTime)
@@ -96,24 +95,14 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
         }
     }
 
-    private fun isCafeBazaarCompatible(): Boolean {
-        return try {
-            mApplicationContext.getPackageInfo(SERVICE_PACKAGE_NAME)
-                ?.sdkAwareVersionCode()?.let { versionCode ->
-                    versionCode >= CAFE_BAZAAR_MIN_APP_VER
-                } ?: false
-        } catch (exception: PackageManager.NameNotFoundException) {
-            false
-        }
-    }
-
     companion object {
-        private const val CAFE_BAZAAR_MIN_APP_VER = 1400500
         internal const val KEY_PACKAGE_NAME = "package_name"
-        internal const val SERVICE_PACKAGE_NAME = "com.farsitel.bazaar.referrerprovider"
+        internal const val SERVICE_PACKAGE_NAME = "com.farsitel.bazaar.dev"
         internal const val SERVICE_NAME =
             "com.farsitel.bazaar.referrerprovider.ReferrerProviderService"
         internal const val SERVICE_ACTION_NAME = "ir.cafebazaar.referrer.BIND"
+        private const val OFF_MAIN_THREAD_EXCEPTION = "This function has to call off the main thread."
+        private const val SERVICE_IS_NOT_STARTED_EXCEPTION = "Service not connected. Please start a connection before using the service."
     }
 
     override fun updateState(state: Int) {
