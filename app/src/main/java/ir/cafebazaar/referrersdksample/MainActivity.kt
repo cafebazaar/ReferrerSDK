@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import ir.cafebazaar.referrersdk.ReferrerClient
 import ir.cafebazaar.referrersdk.ReferrerStateListener
 import kotlinx.coroutines.GlobalScope
@@ -18,7 +19,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         ReferrerClient.newBuilder(applicationContext).build().apply {
-            GlobalScope.launch {
+            lifecycleScope.launch {
                 startConnection(object : ReferrerStateListener {
                     override fun onReferrerSetupFinished(referrerResponse: Int) {
                         when (referrerResponse) {
