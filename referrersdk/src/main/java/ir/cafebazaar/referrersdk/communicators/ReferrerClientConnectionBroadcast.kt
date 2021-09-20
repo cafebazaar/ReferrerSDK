@@ -12,9 +12,7 @@ import ir.cafebazaar.referrersdk.ReferrerClientImpl.Companion.SERVICE_PACKAGE_NA
 import ir.cafebazaar.referrersdk.ReferrerStateListener
 import ir.cafebazaar.referrersdk.receiver.ReferrerReceiver
 import ir.cafebazaar.referrersdk.receiver.ReferrerReceiverCommunicator
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 
 class ReferrerClientConnectionBroadcast(
@@ -22,6 +20,7 @@ class ReferrerClientConnectionBroadcast(
     override var clientState: ClientState,
     override var stateListener: ReferrerStateListener
 ) : ReferrerClientConnectionCommunicator, ReferrerReceiverCommunicator {
+    private var coroutineScope: CoroutineScope? = null
     private val abortableCountDownLatch = AbortableCountDownLatch(ABORTABLE_COUNT_DOWN_LATCH_COUNT)
     private var referrerResponse: Bundle? = null
     override val referrer: Bundle?
@@ -41,6 +40,7 @@ class ReferrerClientConnectionBroadcast(
     }
 
     override fun startConnection(): Boolean {
+        coroutineScope = CoroutineScope(Dispatchers.Main)
         ReferrerReceiver.addObserver(this)
         getNewIntentForBroadcast().apply {
             action = ReferrerBroadcast.ACTION_REFERRER_GET
@@ -51,7 +51,7 @@ class ReferrerClientConnectionBroadcast(
         )
         return (referrerResponse != null).apply {
             if (this) {
-                GlobalScope.launch {
+                coroutineScope?.launch {
                     delay(DELAY_BEFORE_UPDATE_STATE_MILLI_SECONDS)
                     clientState.updateState(CONNECTED)
                     stateListener.onReferrerSetupFinished(ReferrerClient.OK)
@@ -61,6 +61,7 @@ class ReferrerClientConnectionBroadcast(
     }
 
     override fun stopConnection() {
+        coroutineScope?.cancel()
         ReferrerReceiver.removeObserver(this)
         clientState.updateState(DISCONNECTED)
     }
