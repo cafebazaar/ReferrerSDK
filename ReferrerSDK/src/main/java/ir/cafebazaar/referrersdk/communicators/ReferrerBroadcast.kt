@@ -1,6 +1,6 @@
 package ir.cafebazaar.referrersdk.communicators
 
-object ReferrerBroadcast {
+internal object ReferrerBroadcast {
     private const val BAZAAR_BASE_ACTION = "com.farsitel.bazaar.referrer."
     internal const val ACTION_REFERRER_GET = "${BAZAAR_BASE_ACTION}get"
     internal const val ACTION_REFERRER_CONSUME = "${BAZAAR_BASE_ACTION}consume"

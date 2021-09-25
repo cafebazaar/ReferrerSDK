@@ -3,16 +3,14 @@ package ir.cafebazaar.referrersdksample
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import ir.cafebazaar.referrersdk.ReferrerClient
-import ir.cafebazaar.referrersdk.ReferrerDetails
-import ir.cafebazaar.referrersdk.ReferrerStateListener
+import ir.cafebazaar.referrersdk.model.ReferrerDetails
+import ir.cafebazaar.servicebase.Client
+import ir.cafebazaar.servicebase.state.ClientStateListener
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,30 +21,30 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         showError("")
-        ReferrerClient.newBuilder(applicationContext).build().apply {
+        ReferrerClient.getClient(applicationContext).apply {
             lifecycleScope.launch(Dispatchers.IO) {
-                startConnection(object : ReferrerStateListener {
-                    override fun onReferrerSetupFinished(referrerResponse: Int) {
-                        when (referrerResponse) {
-                            ReferrerClient.OK -> {
-                                referrer?.let {
+                startConnection(object : ClientStateListener {
+                    override fun onSetupFinished(response: Int) {
+                        when (response) {
+                            Client.OK -> {
+                                getReferrer()?.let {
                                     showMessages(it)
                                     consumeReferrer(it.installBeginTimestampMilliseconds)
+                                    endConnection()
                                 } ?: kotlin.run {
                                     showError("THERE IS NO REFERRER")
                                 }
                             }
-                            ReferrerClient.DEVELOPER_ERROR -> {
+                            Client.DEVELOPER_ERROR -> {
                                 showError("DEVELOPER_ERROR")
                             }
-                            ReferrerClient.SERVICE_UNAVAILABLE -> {
+                            Client.SERVICE_UNAVAILABLE -> {
                                 showError("SERVICE_UNAVAILABLE")
                             }
                         }
                     }
 
-                    override fun onReferrerServiceDisconnected() {
-                        endConnection()
+                    override fun onServiceDisconnected() {
                     }
                 })
             }

@@ -3,23 +3,23 @@ package ir.cafebazaar.referrersdk.communicators
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import ir.cafebazaar.referrersdk.AbortableCountDownLatch
-import ir.cafebazaar.referrersdk.ClientState
-import ir.cafebazaar.referrersdk.ClientState.Companion.CONNECTED
-import ir.cafebazaar.referrersdk.ClientState.Companion.DISCONNECTED
-import ir.cafebazaar.referrersdk.ReferrerClient
+import ir.cafebazaar.referrersdk.util.AbortableCountDownLatch
+import ir.cafebazaar.servicebase.state.ClientState
+import ir.cafebazaar.servicebase.state.ClientState.Companion.CONNECTED
+import ir.cafebazaar.servicebase.state.ClientState.Companion.DISCONNECTED
+import ir.cafebazaar.servicebase.Client
 import ir.cafebazaar.referrersdk.ReferrerClientImpl.Companion.SERVICE_PACKAGE_NAME
-import ir.cafebazaar.referrersdk.ReferrerStateListener
-import ir.cafebazaar.referrersdk.receiver.ReferrerReceiver
-import ir.cafebazaar.referrersdk.receiver.ReferrerReceiverCommunicator
+import ir.cafebazaar.servicebase.state.ClientStateListener
+import ir.cafebazaar.servicebase.communicators.ClientReceiverCommunicator
+import ir.cafebazaar.servicebase.communicators.ClientConnectionCommunicator
 import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 
-class ReferrerClientConnectionBroadcast(
-    override var context: Context,
+internal class ReferrerClientConnectionBroadcast(
+    private var context: Context,
     override var clientState: ClientState,
-    override var stateListener: ReferrerStateListener
-) : ReferrerClientConnectionCommunicator, ReferrerReceiverCommunicator {
+    override var clientStateListener: ClientStateListener
+) : ClientConnectionCommunicator, ClientReceiverCommunicator, ReferrerConnectionFunctions {
     private var coroutineScope: CoroutineScope? = null
     private val abortableCountDownLatch = AbortableCountDownLatch(ABORTABLE_COUNT_DOWN_LATCH_COUNT)
     private var referrerResponse: Bundle? = null
@@ -41,7 +41,6 @@ class ReferrerClientConnectionBroadcast(
 
     override fun startConnection(): Boolean {
         coroutineScope = CoroutineScope(Dispatchers.Main)
-        ReferrerReceiver.addObserver(this)
         getNewIntentForBroadcast().apply {
             action = ReferrerBroadcast.ACTION_REFERRER_GET
         }.run(::sendBroadcast)
@@ -53,8 +52,8 @@ class ReferrerClientConnectionBroadcast(
             if (this) {
                 coroutineScope?.launch {
                     delay(DELAY_BEFORE_UPDATE_STATE_MILLI_SECONDS)
-                    clientState.updateState(CONNECTED)
-                    stateListener.onReferrerSetupFinished(ReferrerClient.OK)
+                    clientState.updateClientState(CONNECTED)
+                    clientStateListener.onSetupFinished(Client.OK)
                 }
             }
         }
@@ -62,8 +61,7 @@ class ReferrerClientConnectionBroadcast(
 
     override fun stopConnection() {
         coroutineScope?.cancel()
-        ReferrerReceiver.removeObserver(this)
-        clientState.updateState(DISCONNECTED)
+        clientState.updateClientState(DISCONNECTED)
     }
 
     private fun getNewIntentForBroadcast(): Intent {
