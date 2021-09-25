@@ -1,26 +1,17 @@
 package ir.cafebazaar.referrersdk
 
 import android.content.Context
+import ir.cafebazaar.referrersdk.model.ReferrerDetails
+import ir.cafebazaar.servicebase.state.ClientStateListener
 
-abstract class ReferrerClient: ClientState() {
-    abstract fun startConnection(stateListener: ReferrerStateListener)
-    abstract fun endConnection()
-    abstract val isReady: Boolean
-    abstract val referrer: ReferrerDetails?
-    abstract fun consumeReferrer(installTime: Long)
-
-    class Builder internal constructor(private val mContext: Context) {
-        fun build(): ReferrerClient {
-            return ReferrerClientImpl(mContext)
-        }
-    }
-
+interface ReferrerClient {
+    fun startConnection(clientStateListener: ClientStateListener)
+    fun endConnection()
+    fun getReferrer(): ReferrerDetails?
+    fun consumeReferrer(installTime: Long)
     companion object {
-        const val OK = 0
-        const val SERVICE_UNAVAILABLE = 1
-        const val DEVELOPER_ERROR = 2
-        fun newBuilder(ctx: Context): Builder {
-            return Builder(ctx)
+        fun getClient(context: Context): ReferrerClient {
+            return ReferrerClientImpl(context)
         }
     }
 }

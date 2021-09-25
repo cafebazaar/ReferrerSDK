@@ -1,111 +1,78 @@
 package ir.cafebazaar.referrersdk
 
 import android.content.Context
-import android.os.Looper
 import android.os.RemoteException
 import ir.cafebazaar.referrersdk.communicators.ReferrerClientConnectionBroadcast
-import ir.cafebazaar.referrersdk.communicators.ReferrerClientConnectionCommunicator
 import ir.cafebazaar.referrersdk.communicators.ReferrerClientConnectionService
+import ir.cafebazaar.referrersdk.communicators.ReferrerConnectionFunctions
+import ir.cafebazaar.referrersdk.model.ReferrerDetails
+import ir.cafebazaar.referrersdk.model.ReferrerDetailsImpl
+import ir.cafebazaar.servicebase.Client
+import ir.cafebazaar.servicebase.state.ClientStateListener
+import ir.cafebazaar.servicebase.communicators.ClientConnectionCommunicator
 
-internal class ReferrerClientImpl(private val mApplicationContext: Context) : ReferrerClient() {
-    @Volatile
-    private var clientState = DISCONNECTED
+internal class ReferrerClientImpl internal constructor(private val mApplicationContext: Context) : Client(),
+    ReferrerClient {
+    override val supportedClientVersion: Long
+        get() = SUPPORTED_BAZAAR_CLIENT_VERSION
 
-    @Volatile
-    private var referrerClientConnection: ReferrerClientConnectionCommunicator? = null
-
-    override val isReady: Boolean
-        get() = (clientState == CONNECTED).and(referrerClientConnection != null)
-
-    override fun startConnection(stateListener: ReferrerStateListener) {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            throw IllegalThreadStateException(OFF_MAIN_THREAD_EXCEPTION)
-        }
-        if (isReady.not()) {
-            when {
-                clientState == CONNECTING -> {
-                    stateListener.onReferrerSetupFinished(DEVELOPER_ERROR)
-                }
-                clientState != CLOSED -> {
-                    when {
-                        tryToConnect(stateListener) -> return
-                        else -> {
-                            clientState = DISCONNECTED
-                            stateListener.onReferrerSetupFinished(SERVICE_UNAVAILABLE)
-                        }
-                    }
-                }
-                else -> {
-                    stateListener.onReferrerSetupFinished(DEVELOPER_ERROR)
-                }
-            }
-        } else {
-            stateListener.onReferrerSetupFinished(OK)
-        }
+    override fun getConnectionsList(clientStateListener: ClientStateListener): List<ClientConnectionCommunicator> {
+        return listOf<ClientConnectionCommunicator>(
+            ReferrerClientConnectionService(
+                mApplicationContext,
+                this,
+                clientStateListener
+            ),
+            ReferrerClientConnectionBroadcast(
+                mApplicationContext,
+                this,
+                clientStateListener
+            )
+        )
     }
 
-    private fun tryToConnect(stateListener: ReferrerStateListener): Boolean {
-        clientState = CONNECTING
-        ReferrerClientConnectionService(mApplicationContext, this, stateListener).also { connection ->
-            if (connection.startConnection()) {
-                referrerClientConnection = connection
-                return true
-            }
-        }
-        ReferrerClientConnectionBroadcast(mApplicationContext, this, stateListener).also { connection ->
-            if (connection.startConnection()) {
-                referrerClientConnection = connection
-                return true
-            }
-        }
-        return false
-    }
-
-    override fun endConnection() {
-        clientState = CLOSED
-        referrerClientConnection?.stopConnection()
-    }
-
-    override val referrer: ReferrerDetails?
-        get() = if (isReady.not()) {
-            throw IllegalStateException(SERVICE_IS_NOT_STARTED_EXCEPTION)
-        } else {
+    override fun getReferrer(): ReferrerDetails? {
+        return runIfReady {
             try {
-                referrerClientConnection?.referrer?.apply {
+                clientConnection?.toReferrerConnectionFunctions()?.referrer?.apply {
                     putString(KEY_PACKAGE_NAME, mApplicationContext.packageName)
-                }?.run {
-                    return@run ReferrerDetails(this)
+                }?.also {
+                    return@runIfReady ReferrerDetailsImpl(it)
                 }
             } catch (exception: RemoteException) {
-                clientState = DISCONNECTED
+                updateClientState(DISCONNECTED)
                 throw exception
             }
+        }?.let { result ->
+            return if (result is ReferrerDetails) {
+                result
+            } else {
+                null
+            }
         }
+    }
 
     override fun consumeReferrer(installTime: Long) {
-        if (isReady.not()) {
-            throw IllegalStateException(SERVICE_IS_NOT_STARTED_EXCEPTION)
-        } else {
+        runIfReady {
             try {
-                referrerClientConnection?.consumeReferrer(installTime)
+                clientConnection?.toReferrerConnectionFunctions()?.consumeReferrer(installTime)
             } catch (exception: RemoteException) {
-                clientState = DISCONNECTED
+                updateClientState(DISCONNECTED)
                 throw exception
             }
         }
+    }
+
+    private fun ClientConnectionCommunicator.toReferrerConnectionFunctions(): ReferrerConnectionFunctions {
+        return this as ReferrerConnectionFunctions
     }
 
     companion object {
+        internal const val SUPPORTED_BAZAAR_CLIENT_VERSION = 2654456L
         internal const val KEY_PACKAGE_NAME = "package_name"
         internal const val SERVICE_PACKAGE_NAME = "com.farsitel.bazaar.dev"
         internal const val SERVICE_NAME =
             "com.farsitel.bazaar.referrerprovider.ReferrerProviderService"
         internal const val SERVICE_ACTION_NAME = "ir.cafebazaar.referrer.BIND"
-        private const val OFF_MAIN_THREAD_EXCEPTION = "This function has to call off the main thread."
-        private const val SERVICE_IS_NOT_STARTED_EXCEPTION = "Service not connected. Please start a connection before using the service."
-    }
-
-    override fun updateState(state: Int) {
-        clientState = state
     }
 }
