@@ -34,8 +34,8 @@ class ReferrerClientConnectionBroadcast(
 
     override fun consumeReferrer(installTime: Long) {
         getNewIntentForBroadcast().apply {
-            action = ReferrerBroadcast.ACTION_REFERRER_CONSUME
-            putExtra(ReferrerBroadcast.KEY_INSTALL_TIME, installTime)
+            action = ACTION_REFERRER_CONSUME
+            putExtra(KEY_INSTALL_TIME, installTime)
         }.run(::sendBroadcast)
     }
 
@@ -43,7 +43,7 @@ class ReferrerClientConnectionBroadcast(
         coroutineScope = CoroutineScope(Dispatchers.Main)
         ReferrerReceiver.addObserver(this)
         getNewIntentForBroadcast().apply {
-            action = ReferrerBroadcast.ACTION_REFERRER_GET
+            action = ACTION_REFERRER_GET
         }.run(::sendBroadcast)
         abortableCountDownLatch.await(
             ABORTABLE_COUNT_DOWN_LATCH_COUNT_TIMEOUT_SECONDS,
@@ -68,7 +68,7 @@ class ReferrerClientConnectionBroadcast(
 
     private fun getNewIntentForBroadcast(): Intent {
         val bundle = Bundle().apply {
-            putString(ReferrerBroadcast.KEY_PACKAGE_NAME, context.packageName)
+            putString(KEY_PACKAGE_NAME, context.packageName)
         }
         return Intent().apply {
             `package` = SERVICE_PACKAGE_NAME
@@ -82,9 +82,9 @@ class ReferrerClientConnectionBroadcast(
 
     override fun onNewBroadcastReceived(intent: Intent?) {
         when (intent?.action) {
-            ReferrerBroadcast.ACTION_REFERRER_GET -> {
+            ACTION_REFERRER_GET -> {
                 referrerResponse =
-                    intent.getBundleExtra(ReferrerBroadcast.KEY_RESPONSE) ?: Bundle()
+                    intent.getBundleExtra(KEY_RESPONSE) ?: Bundle()
                 abortableCountDownLatch.countDown()
             }
         }
@@ -94,5 +94,11 @@ class ReferrerClientConnectionBroadcast(
         private const val ABORTABLE_COUNT_DOWN_LATCH_COUNT = 1
         private const val ABORTABLE_COUNT_DOWN_LATCH_COUNT_TIMEOUT_SECONDS = 5L
         private const val DELAY_BEFORE_UPDATE_STATE_MILLI_SECONDS = 1000L
+        private const val BAZAAR_BASE_ACTION = "com.farsitel.bazaar.referrer."
+        private const val ACTION_REFERRER_GET = "${BAZAAR_BASE_ACTION}get"
+        private const val ACTION_REFERRER_CONSUME = "${BAZAAR_BASE_ACTION}consume"
+        private const val KEY_PACKAGE_NAME = "packageName"
+        private const val KEY_INSTALL_TIME = "installTime"
+        private const val KEY_RESPONSE = "response"
     }
 }
