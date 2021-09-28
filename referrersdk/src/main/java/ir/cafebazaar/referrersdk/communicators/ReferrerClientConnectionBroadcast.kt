@@ -20,6 +20,7 @@ class ReferrerClientConnectionBroadcast(
     override var clientState: ClientState,
     override var stateListener: ReferrerStateListener
 ) : ReferrerClientConnectionCommunicator, ReferrerReceiverCommunicator {
+
     private var coroutineScope: CoroutineScope? = null
     private val abortableCountDownLatch = AbortableCountDownLatch(ABORTABLE_COUNT_DOWN_LATCH_COUNT)
     private var referrerResponse: Bundle? = null
