@@ -41,6 +41,7 @@ class ReferrerClientConnectionBroadcast(
     }
 
     override fun startConnection(): Boolean {
+        coroutineScope?.cancel()
         coroutineScope = CoroutineScope(Dispatchers.Main)
         ReferrerReceiver.addObserver(this)
         getNewIntentForBroadcast().apply {
