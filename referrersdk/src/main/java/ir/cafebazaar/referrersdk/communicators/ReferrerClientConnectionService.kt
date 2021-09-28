@@ -7,7 +7,7 @@ import android.content.ServiceConnection
 import android.content.pm.ResolveInfo
 import android.os.Bundle
 import android.os.IBinder
-import com.farsitel.bazaar.referrerprovider.IReferrerProviderService
+import com.farsitel.bazaar.referrerprovider.ReferrerProviderService
 import ir.cafebazaar.referrersdk.ClientState
 import ir.cafebazaar.referrersdk.ClientState.Companion.CONNECTED
 import ir.cafebazaar.referrersdk.ClientState.Companion.DISCONNECTED
@@ -22,7 +22,7 @@ class ReferrerClientConnectionService(
 ) : ReferrerClientConnectionCommunicator {
 
     private var referrerServiceConnection: ReferrerServiceConnection? = null
-    private var service: IReferrerProviderService? = null
+    private var service: ReferrerProviderService? = null
 
     override val referrer: Bundle?
         get() = service?.getReferrer(context.packageName)
@@ -75,7 +75,7 @@ class ReferrerClientConnectionService(
     inner class ReferrerServiceConnection internal constructor(private val stateListener: ReferrerStateListener) :
         ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
-            service = IReferrerProviderService.Stub.asInterface(iBinder)
+            service = ReferrerProviderService.Stub.asInterface(iBinder)
             clientState.updateState(CONNECTED)
             stateListener.onReferrerSetupFinished(ReferrerClient.OK)
         }
