@@ -13,6 +13,7 @@ import ir.cafebazaar.referrersdk.ReferrerStateListener
 import ir.cafebazaar.referrersdk.receiver.ReferrerReceiver
 import ir.cafebazaar.referrersdk.receiver.ReferrerReceiverCommunicator
 import kotlinx.coroutines.*
+import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 class ReferrerClientConnectionBroadcast(
@@ -26,7 +27,7 @@ class ReferrerClientConnectionBroadcast(
     private var referrerResponseBundle: Bundle? = null
     override val referrerBundle: Bundle?
         get() {
-            return if(referrerResponseBundle?.isEmpty == true) {
+            return if (referrerResponseBundle?.isEmpty == true) {
                 null
             } else {
                 referrerResponseBundle
@@ -47,10 +48,13 @@ class ReferrerClientConnectionBroadcast(
         getNewIntentForBroadcast().apply {
             action = ACTION_REFERRER_GET
         }.run(::sendBroadcast)
-        abortableCountDownLatch.await(
-            ABORTABLE_COUNT_DOWN_LATCH_COUNT_TIMEOUT_SECONDS,
-            TimeUnit.SECONDS
-        )
+        try {
+            abortableCountDownLatch.await(
+                ABORTABLE_COUNT_DOWN_LATCH_COUNT_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS
+            )
+        } catch (exception: Exception) {
+        }
         return (referrerResponseBundle != null).apply {
             if (this) {
                 coroutineScope?.launch {
