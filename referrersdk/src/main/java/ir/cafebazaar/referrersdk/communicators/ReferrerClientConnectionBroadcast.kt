@@ -23,13 +23,13 @@ class ReferrerClientConnectionBroadcast(
 
     private var coroutineScope: CoroutineScope? = null
     private val abortableCountDownLatch = AbortableCountDownLatch(ABORTABLE_COUNT_DOWN_LATCH_COUNT)
-    private var referrerResponse: Bundle? = null
+    private var referrerResponseBundle: Bundle? = null
     override val referrerBundle: Bundle?
         get() {
-            return if(referrerResponse?.isEmpty == true) {
+            return if(referrerResponseBundle?.isEmpty == true) {
                 null
             } else {
-                referrerResponse
+                referrerResponseBundle
             }
         }
 
@@ -50,7 +50,7 @@ class ReferrerClientConnectionBroadcast(
             ABORTABLE_COUNT_DOWN_LATCH_COUNT_TIMEOUT_SECONDS,
             TimeUnit.SECONDS
         )
-        return (referrerResponse != null).apply {
+        return (referrerResponseBundle != null).apply {
             if (this) {
                 coroutineScope?.launch {
                     delay(DELAY_BEFORE_UPDATE_STATE_MILLI_SECONDS)
@@ -84,7 +84,7 @@ class ReferrerClientConnectionBroadcast(
     override fun onNewBroadcastReceived(intent: Intent?) {
         when (intent?.action) {
             ACTION_REFERRER_GET -> {
-                referrerResponse =
+                referrerResponseBundle =
                     intent.getBundleExtra(KEY_RESPONSE) ?: Bundle()
                 abortableCountDownLatch.countDown()
             }
