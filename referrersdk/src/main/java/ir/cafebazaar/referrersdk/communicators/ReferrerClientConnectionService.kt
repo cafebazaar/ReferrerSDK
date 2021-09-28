@@ -24,7 +24,7 @@ class ReferrerClientConnectionService(
     private var referrerServiceConnection: ReferrerServiceConnection? = null
     private var service: ReferrerProviderService? = null
 
-    override val referrer: Bundle?
+    override val referrerBundle: Bundle?
         get() = service?.getReferrer(context.packageName)
 
     override fun consumeReferrer(installTime: Long) {

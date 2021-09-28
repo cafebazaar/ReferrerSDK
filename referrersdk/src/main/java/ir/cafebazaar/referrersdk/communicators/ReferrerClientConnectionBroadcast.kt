@@ -24,7 +24,7 @@ class ReferrerClientConnectionBroadcast(
     private var coroutineScope: CoroutineScope? = null
     private val abortableCountDownLatch = AbortableCountDownLatch(ABORTABLE_COUNT_DOWN_LATCH_COUNT)
     private var referrerResponse: Bundle? = null
-    override val referrer: Bundle?
+    override val referrerBundle: Bundle?
         get() {
             return if(referrerResponse?.isEmpty == true) {
                 null

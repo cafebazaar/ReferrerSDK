@@ -71,7 +71,7 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
             throw IllegalStateException(SERVICE_IS_NOT_STARTED_EXCEPTION)
         } else {
             try {
-                referrerClientConnection?.referrer?.apply {
+                referrerClientConnection?.referrerBundle?.apply {
                     putString(KEY_PACKAGE_NAME, mApplicationContext.packageName)
                 }?.run {
                     return@run ReferrerDetails(this)

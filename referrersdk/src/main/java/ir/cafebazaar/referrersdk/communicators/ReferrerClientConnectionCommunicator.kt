@@ -9,7 +9,7 @@ internal interface ReferrerClientConnectionCommunicator {
     var context: Context
     var clientState: ClientState
     var stateListener: ReferrerStateListener
-    val referrer: Bundle?
+    val referrerBundle: Bundle?
     fun consumeReferrer(installTime: Long)
     fun startConnection(): Boolean
     fun stopConnection()
