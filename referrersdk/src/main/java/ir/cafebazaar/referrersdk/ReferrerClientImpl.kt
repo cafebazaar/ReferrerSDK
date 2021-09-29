@@ -97,7 +97,7 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
 
     companion object {
         internal const val KEY_PACKAGE_NAME = "package_name"
-        internal const val SERVICE_PACKAGE_NAME = "com.farsitel.bazaar.dev"
+        internal const val SERVICE_PACKAGE_NAME = "com.farsitel.bazaar"
         internal const val SERVICE_NAME =
             "com.farsitel.bazaar.referrerprovider.ReferrerProviderService"
         internal const val SERVICE_ACTION_NAME = "ir.cafebazaar.referrer.BIND"
