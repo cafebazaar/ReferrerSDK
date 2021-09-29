@@ -12,7 +12,6 @@ ext {
 
     pluginVersions = [
             'gradle'      : '7.0.0',
-            'bintray'     : '1.2',
             'androidmaven': '1.4.1',
             'detekt'      : '1.1.1'
     ]
