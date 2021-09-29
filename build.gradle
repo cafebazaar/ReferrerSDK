@@ -8,7 +8,6 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$pluginVersions.gradle"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.20"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$pluginVersions.bintray"
         classpath "com.github.dcendents:android-maven-gradle-plugin:$pluginVersions.androidmaven"
         classpath "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:$pluginVersions.detekt"
     }
