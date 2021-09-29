@@ -19,7 +19,7 @@ ext {
     buildVersions = [
             'compileSdkVersion': 30,
             'buildToolsVersion': '31.0.0',
-            'minSdkVersion'    : 21,
+            'minSdkVersion'    : 17,
             'targetSdkVersion' : 30
     ]
 
