@@ -16,7 +16,7 @@ import kotlinx.coroutines.*
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
-class ReferrerClientConnectionBroadcast(
+internal class ReferrerClientConnectionBroadcast(
     override val context: Context,
     override val clientState: ClientState,
     override val stateListener: ReferrerStateListener

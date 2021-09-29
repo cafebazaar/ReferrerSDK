@@ -15,7 +15,7 @@ import ir.cafebazaar.referrersdk.ReferrerClient
 import ir.cafebazaar.referrersdk.ReferrerClientImpl
 import ir.cafebazaar.referrersdk.ReferrerStateListener
 
-class ReferrerClientConnectionService(
+internal class ReferrerClientConnectionService(
     override val context: Context,
     override val clientState: ClientState,
     override val stateListener: ReferrerStateListener
