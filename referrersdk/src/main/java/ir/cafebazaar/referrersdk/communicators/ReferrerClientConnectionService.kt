@@ -8,20 +8,17 @@ import android.content.pm.ResolveInfo
 import android.os.Bundle
 import android.os.IBinder
 import com.farsitel.bazaar.referrerprovider.ReferrerProviderService
-import ir.cafebazaar.referrersdk.ClientState
+import ir.cafebazaar.referrersdk.*
 import ir.cafebazaar.referrersdk.ClientState.Companion.CONNECTED
 import ir.cafebazaar.referrersdk.ClientState.Companion.DISCONNECTED
-import ir.cafebazaar.referrersdk.ReferrerClient
 import ir.cafebazaar.referrersdk.ReferrerClientImpl
-import ir.cafebazaar.referrersdk.ReferrerStateListener
 
 internal class ReferrerClientConnectionService(
     override val context: Context,
     override val clientState: ClientState,
     override val stateListener: ReferrerStateListener
-) : ReferrerClientConnectionCommunicator {
+) : ReferrerClientConnectionCommunicator, ServiceConnection {
 
-    private var referrerServiceConnection: ReferrerServiceConnection? = null
     private var service: ReferrerProviderService? = null
 
     override val referrerBundle: Bundle?
@@ -33,11 +30,8 @@ internal class ReferrerClientConnectionService(
 
     override suspend fun startConnection(): Boolean {
         val serviceIntent = getServiceIntent()
-        val resolvedServices: List<*> =
-            context.packageManager.queryIntentServices(serviceIntent, 0)
-        if (resolvedServices.isNullOrEmpty().not()) {
-            (resolvedServices.first() as ResolveInfo)
-                .serviceInfo?.let { serviceInfo ->
+        getResovleInfo(serviceIntent)?.let { resolvedServiceInfo ->
+            resolvedServiceInfo.serviceInfo?.let { serviceInfo ->
                 if (isPackageNameValid(serviceInfo.packageName, serviceInfo.name)) {
                     return bindService(serviceIntent)
                 }
@@ -46,20 +40,26 @@ internal class ReferrerClientConnectionService(
         return false
     }
 
+    private fun getResovleInfo(serviceIntent: Intent): ResolveInfo? {
+        val resolvedServices: List<*> =
+            context.packageManager.queryIntentServices(serviceIntent, 0)
+        if (resolvedServices.isNullOrEmpty().not()) {
+            return resolvedServices.first() as ResolveInfo
+        }
+        return null
+    }
+
     private fun isPackageNameValid(packageName: String?, name: String?) =
         (ReferrerClientImpl.SERVICE_PACKAGE_NAME == packageName).and(name != null)
 
     private fun bindService(serviceIntent: Intent): Boolean {
-        ReferrerServiceConnection(stateListener).also { referrerServiceConnection ->
-            this.referrerServiceConnection = referrerServiceConnection
-            if (context.bindService(
-                    serviceIntent,
-                    referrerServiceConnection,
-                    Context.BIND_AUTO_CREATE
-                )
-            ) {
-                return true
-            }
+        if (context.bindService(
+                serviceIntent,
+                this,
+                Context.BIND_AUTO_CREATE
+            )
+        ) {
+            return true
         }
         return false
     }
@@ -75,25 +75,18 @@ internal class ReferrerClientConnectionService(
     }
 
     override fun stopConnection() {
-        referrerServiceConnection?.let { referrerServiceConnection ->
-            context.unbindService(referrerServiceConnection)
-            this.referrerServiceConnection = null
-        }
+        context.unbindService(this)
     }
 
+    override fun onServiceConnected(name: ComponentName?, iBinder: IBinder?) {
+        service = ReferrerProviderService.Stub.asInterface(iBinder)
+        clientState.updateState(CONNECTED)
+        stateListener.onReferrerSetupFinished(ReferrerSDKStates.Ok)
+    }
 
-    inner class ReferrerServiceConnection internal constructor(private val stateListener: ReferrerStateListener) :
-        ServiceConnection {
-        override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
-            service = ReferrerProviderService.Stub.asInterface(iBinder)
-            clientState.updateState(CONNECTED)
-            stateListener.onReferrerSetupFinished(ReferrerSDKStates.Ok)
-        }
-
-        override fun onServiceDisconnected(var1: ComponentName) {
-            service = null
-            clientState.updateState(DISCONNECTED)
-            stateListener.onReferrerServiceDisconnected()
-        }
+    override fun onServiceDisconnected(name: ComponentName?) {
+        service = null
+        clientState.updateState(DISCONNECTED)
+        stateListener.onReferrerServiceDisconnected()
     }
 }
