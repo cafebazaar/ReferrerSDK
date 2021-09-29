@@ -23,32 +23,40 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         showError("")
+        getReferrerData()
+    }
+
+    private fun getReferrerData() {
         ReferrerClient.newBuilder(applicationContext).build().apply {
             lifecycleScope.launch(Dispatchers.IO) {
                 startConnection(object : ReferrerStateListener {
                     override fun onReferrerSetupFinished(referrerResponse: Int) {
-                        when (referrerResponse) {
-                            ReferrerClient.OK -> {
-                                referrer?.let {
-                                    showMessages(it)
-                                    consumeReferrer(it.installBeginTimestampMilliseconds)
-                                } ?: kotlin.run {
-                                    showError("THERE IS NO REFERRER")
-                                }
-                            }
-                            ReferrerClient.DEVELOPER_ERROR -> {
-                                showError("DEVELOPER_ERROR")
-                            }
-                            ReferrerClient.SERVICE_UNAVAILABLE -> {
-                                showError("SERVICE_UNAVAILABLE")
-                            }
-                        }
+                        handleReferrerResponse(referrerResponse)
                     }
 
                     override fun onReferrerServiceDisconnected() {
                         endConnection()
                     }
                 })
+            }
+        }
+    }
+
+    private fun ReferrerClient.handleReferrerResponse(referrerResponse: Int) {
+        when (referrerResponse) {
+            ReferrerClient.OK -> {
+                referrer?.let {
+                    showMessages(it)
+                    consumeReferrer(it.installBeginTimestampMilliseconds)
+                } ?: kotlin.run {
+                    showError("THERE IS NO REFERRER")
+                }
+            }
+            ReferrerClient.DEVELOPER_ERROR -> {
+                showError("DEVELOPER_ERROR")
+            }
+            ReferrerClient.SERVICE_UNAVAILABLE -> {
+                showError("SERVICE_UNAVAILABLE")
             }
         }
     }
