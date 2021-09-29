@@ -46,13 +46,4 @@ public class AbortableCountDownLatch extends CountDownLatch {
             throw new AbortedException();
         }
     }
-
-    public static class AbortedException extends InterruptedException {
-        public AbortedException() {
-        }
-
-        public AbortedException(String detailMessage) {
-            super(detailMessage);
-        }
-    }
 }
