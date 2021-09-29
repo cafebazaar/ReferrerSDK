@@ -6,7 +6,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class AbortableCountDownLatch extends CountDownLatch {
-    protected boolean aborted = false;
+    private boolean aborted = false;
 
     public AbortableCountDownLatch(int count) {
         super(count);
