@@ -6,9 +6,9 @@ import ir.cafebazaar.referrersdk.ClientState
 import ir.cafebazaar.referrersdk.ReferrerStateListener
 
 internal interface ReferrerClientConnectionCommunicator {
-    var context: Context
-    var clientState: ClientState
-    var stateListener: ReferrerStateListener
+    val context: Context
+    val clientState: ClientState
+    val stateListener: ReferrerStateListener
     val referrerBundle: Bundle?
     fun consumeReferrer(installTime: Long)
     fun startConnection(): Boolean

@@ -17,9 +17,9 @@ import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 class ReferrerClientConnectionBroadcast(
-    override var context: Context,
-    override var clientState: ClientState,
-    override var stateListener: ReferrerStateListener
+    override val context: Context,
+    override val clientState: ClientState,
+    override val stateListener: ReferrerStateListener
 ) : ReferrerClientConnectionCommunicator, ReferrerReceiverCommunicator {
 
     private var coroutineScope: CoroutineScope? = null
