@@ -9,9 +9,9 @@ abstract class ReferrerClient: ClientState() {
     abstract val referrer: ReferrerDetails?
     abstract fun consumeReferrer(installTime: Long)
 
-    class Builder internal constructor(private val mContext: Context) {
+    class Builder internal constructor(private val context: Context) {
         fun build(): ReferrerClient {
-            return ReferrerClientImpl(mContext)
+            return ReferrerClientImpl(context)
         }
     }
 
