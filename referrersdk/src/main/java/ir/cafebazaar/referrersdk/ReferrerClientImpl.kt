@@ -100,7 +100,7 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
         internal const val SERVICE_PACKAGE_NAME = "com.farsitel.bazaar"
         internal const val SERVICE_NAME =
             "com.farsitel.bazaar.referrerprovider.ReferrerProviderService"
-        internal const val SERVICE_ACTION_NAME = "ir.cafebazaar.referrer.BIND"
+        internal const val SERVICE_ACTION_NAME = "com.cafebazaar.referrer.BIND"
         private const val OFF_MAIN_THREAD_EXCEPTION = "This function has to call off the main thread."
         private const val SERVICE_IS_NOT_STARTED_EXCEPTION = "Service not connected. Please start a connection before using the service."
     }
