@@ -3,51 +3,52 @@ package ir.cafebazaar.referrersdksample
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
-import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import ir.cafebazaar.referrersdk.ReferrerClient
 import ir.cafebazaar.referrersdk.ReferrerDetails
-import ir.cafebazaar.referrersdk.ReferrerStateListener
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var errorTextView: TextView
+    private lateinit var referrerContentTextView: TextView
+    private lateinit var versionTextView: TextView
+    private lateinit var installTimeTextView: TextView
+    private lateinit var clickTimeTextView: TextView
+    private lateinit var mainViewModel: MainViewModel
+    private var _referrerClient: ReferrerClient? = null
+    private val referrerClient: ReferrerClient
+    get() = requireNotNull(_referrerClient)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        initUI()
+        _referrerClient = ReferrerClient.newBuilder(applicationContext).build()
+        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        mainViewModel.referrerResponseState.observe(this) { referrerResponseState ->
+            handleReferrerResponse(referrerResponseState)
+        }
+        mainViewModel.onCreate(referrerClient)
+    }
+
+    private fun initUI() {
+        clickTimeTextView = findViewById(R.id.clicktime)
+        installTimeTextView = findViewById(R.id.installtime)
+        versionTextView = findViewById(R.id.version)
+        referrerContentTextView = findViewById(R.id.content)
+        errorTextView = findViewById(R.id.error)
     }
 
     override fun onResume() {
         super.onResume()
         showError("")
-        getReferrerData()
     }
 
-    private fun getReferrerData() {
-        ReferrerClient.newBuilder(applicationContext).build().apply {
-            lifecycleScope.launch(Dispatchers.IO) {
-                startConnection(object : ReferrerStateListener {
-                    override fun onReferrerSetupFinished(referrerResponse: Int) {
-                        handleReferrerResponse(referrerResponse)
-                    }
-
-                    override fun onReferrerServiceDisconnected() {
-                        endConnection()
-                    }
-                })
-            }
-        }
-    }
-
-    private fun ReferrerClient.handleReferrerResponse(referrerResponse: Int) {
+    private fun handleReferrerResponse(referrerResponse: Int) {
         when (referrerResponse) {
             ReferrerClient.OK -> {
-                referrer?.let {
+                referrerClient.referrer?.let {
                     showMessages(it)
-                    consumeReferrer(it.installBeginTimestampMilliseconds)
+                    referrerClient.consumeReferrer(it.installBeginTimestampMilliseconds)
                 } ?: kotlin.run {
                     showError("THERE IS NO REFERRER")
                 }
@@ -62,34 +63,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showMessages(referrerDetails: ReferrerDetails) {
-        with(findViewById<TextView>(R.id.clicktime)) {
-            post {
-                text = referrerDetails.referrerClickTimestampMilliseconds.millisecondsToTime()
-            }
-        }
-        with(findViewById<TextView>(R.id.installtime)) {
-            post {
-                text = referrerDetails.installBeginTimestampMilliseconds.millisecondsToTime()
-            }
-        }
-        with(findViewById<TextView>(R.id.version)) {
-            post {
-                text = referrerDetails.appVersion.toString()
-            }
-        }
-        with(findViewById<TextView>(R.id.content)) {
-            post {
-                text = referrerDetails.referrer.toString()
-            }
-        }
+        clickTimeTextView.text = referrerDetails.referrerClickTimestampMilliseconds.millisecondsToTime()
+        installTimeTextView.text = referrerDetails.installBeginTimestampMilliseconds.millisecondsToTime()
+        versionTextView.text = referrerDetails.appVersion.toString()
+        referrerContentTextView.text = referrerDetails.referrer.toString()
     }
 
     private fun showError(message: String) {
-        with(findViewById<TextView>(R.id.error)) {
-            post {
-                text = message
-            }
-        }
+        errorTextView.text = message
     }
 
     private fun Long.millisecondsToTime(): String {

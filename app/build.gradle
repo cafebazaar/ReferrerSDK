@@ -37,8 +37,10 @@ dependencies {
     implementation project(":referrersdk")
     implementation "androidx.core:core-ktx:${libraryVersions.corektx}"
     implementation "androidx.appcompat:appcompat:${libraryVersions.appcompat}"
+    implementation "com.google.android.material:material:${libraryVersions.material}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${libraryVersions.coroutines}"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:${libraryVersions.lifecyclektx}"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${libraryVersions.lifecyclektx}"
     implementation "androidx.constraintlayout:constraintlayout:${libraryVersions.constraintlayout}"
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
