@@ -4,8 +4,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import ir.cafebazaar.referrersdk.ReferrerClient
 import ir.cafebazaar.referrersdk.ReferrerDetails
+import ir.cafebazaar.referrersdk.ReferrerSDKStates
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -51,15 +51,15 @@ class MainActivity : AppCompatActivity() {
         showError("")
     }
 
-    private fun handleReferrerResponse(referrerResponse: Int) {
+    private fun handleReferrerResponse(referrerResponse: ReferrerSDKStates) {
         when (referrerResponse) {
-            ReferrerClient.OK -> {
+            is ReferrerSDKStates.Ok -> {
                 mainViewModel.getAndConsumeReferrer()
             }
-            ReferrerClient.DEVELOPER_ERROR -> {
-                showError("DEVELOPER_ERROR")
+            is ReferrerSDKStates.DeveloperError -> {
+                showError(referrerResponse.message)
             }
-            ReferrerClient.SERVICE_UNAVAILABLE -> {
+            is ReferrerSDKStates.ServiceUnAvailable -> {
                 showError("SERVICE_UNAVAILABLE")
             }
         }

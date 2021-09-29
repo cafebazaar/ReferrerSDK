@@ -24,23 +24,31 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
         if (isReady.not()) {
             when {
                 clientState == CONNECTING -> {
-                    stateListener.onReferrerSetupFinished(DEVELOPER_ERROR)
+                    stateListener.onReferrerSetupFinished(
+                        ReferrerSDKStates.DeveloperError("It is connecting now")
+                    )
                 }
                 clientState != CLOSED -> {
                     when {
                         tryToConnect(stateListener) -> return
                         else -> {
                             clientState = DISCONNECTED
-                            stateListener.onReferrerSetupFinished(SERVICE_UNAVAILABLE)
+                            stateListener.onReferrerSetupFinished(
+                                ReferrerSDKStates.ServiceUnAvailable
+                            )
                         }
                     }
                 }
                 else -> {
-                    stateListener.onReferrerSetupFinished(DEVELOPER_ERROR)
+                    stateListener.onReferrerSetupFinished(
+                        ReferrerSDKStates.DeveloperError("Connection is closed")
+                    )
                 }
             }
         } else {
-            stateListener.onReferrerSetupFinished(OK)
+            stateListener.onReferrerSetupFinished(
+                ReferrerSDKStates.Ok
+            )
         }
     }
 

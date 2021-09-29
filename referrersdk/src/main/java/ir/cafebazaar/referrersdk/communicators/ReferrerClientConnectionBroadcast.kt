@@ -60,7 +60,7 @@ internal class ReferrerClientConnectionBroadcast(
                 coroutineScope?.launch {
                     delay(DELAY_BEFORE_UPDATE_STATE_MILLI_SECONDS)
                     clientState.updateState(CONNECTED)
-                    stateListener.onReferrerSetupFinished(ReferrerClient.OK)
+                    stateListener.onReferrerSetupFinished(ReferrerSDKStates.Ok)
                 }
             }
         }

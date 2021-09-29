@@ -22,9 +22,6 @@ abstract class ReferrerClient: ClientState() {
     }
 
     companion object {
-        const val OK = 0
-        const val SERVICE_UNAVAILABLE = 1
-        const val DEVELOPER_ERROR = 2
         fun newBuilder(context: Context): Builder {
             return Builder(context)
         }

@@ -87,7 +87,7 @@ internal class ReferrerClientConnectionService(
         override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
             service = ReferrerProviderService.Stub.asInterface(iBinder)
             clientState.updateState(CONNECTED)
-            stateListener.onReferrerSetupFinished(ReferrerClient.OK)
+            stateListener.onReferrerSetupFinished(ReferrerSDKStates.Ok)
         }
 
         override fun onServiceDisconnected(var1: ComponentName) {
