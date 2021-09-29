@@ -2,15 +2,15 @@ package ir.cafebazaar.referrersdk
 
 import android.os.Bundle
 
-class ReferrerDetails(private val mOriginalBundle: Bundle) {
+class ReferrerDetails(private val originalBundle: Bundle) {
     val referrer: String?
-        get() = mOriginalBundle.getString(KEY_INSTALL_REFERRER)
+        get() = originalBundle.getString(KEY_INSTALL_REFERRER)
     val referrerClickTimestampMilliseconds: Long
-        get() = mOriginalBundle.getLong(KEY_REFERRER_CLICK_TIMESTAMP)
+        get() = originalBundle.getLong(KEY_REFERRER_CLICK_TIMESTAMP)
     val installBeginTimestampMilliseconds: Long
-        get() = mOriginalBundle.getLong(KEY_INSTALL_BEGIN_TIMESTAMP)
+        get() = originalBundle.getLong(KEY_INSTALL_BEGIN_TIMESTAMP)
     val appVersion: String?
-        get() = mOriginalBundle.getString(KEY_APP_VERSION)
+        get() = originalBundle.getString(KEY_APP_VERSION)
 
     companion object {
         private const val KEY_INSTALL_REFERRER = "install_referrer"
