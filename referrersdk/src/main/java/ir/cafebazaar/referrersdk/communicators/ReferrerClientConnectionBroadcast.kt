@@ -88,12 +88,14 @@ class ReferrerClientConnectionBroadcast(
 
     override fun onNewBroadcastReceived(intent: Intent?) {
         when (intent?.action) {
-            ACTION_REFERRER_GET -> {
-                referrerResponseBundle =
-                    intent.getBundleExtra(KEY_RESPONSE) ?: Bundle()
-                abortableCountDownLatch.countDown()
-            }
+            ACTION_REFERRER_GET -> handleReferrerGetAction(intent)
         }
+    }
+
+    private fun handleReferrerGetAction(intent: Intent) {
+        referrerResponseBundle =
+            intent.getBundleExtra(KEY_RESPONSE) ?: Bundle()
+        abortableCountDownLatch.countDown()
     }
 
     companion object {
