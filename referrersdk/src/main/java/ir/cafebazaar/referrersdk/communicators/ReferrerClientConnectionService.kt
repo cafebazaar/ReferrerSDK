@@ -32,36 +32,46 @@ class ReferrerClientConnectionService(
     }
 
     override suspend fun startConnection(): Boolean {
+        val serviceIntent = getServiceIntent()
+        val resolvedServices: List<*> =
+            context.packageManager.queryIntentServices(serviceIntent, 0)
+        if (resolvedServices.isNullOrEmpty().not()) {
+            (resolvedServices.first() as ResolveInfo)
+                .serviceInfo?.let { serviceInfo ->
+                if (isPackageNameValid(serviceInfo.packageName, serviceInfo.name)) {
+                    return bindService(serviceIntent)
+                }
+            }
+        }
+        return false
+    }
+
+    private fun isPackageNameValid(packageName: String?, name: String?) =
+        (ReferrerClientImpl.SERVICE_PACKAGE_NAME == packageName).and(name != null)
+
+    private fun bindService(serviceIntent: Intent): Boolean {
+        ReferrerServiceConnection(stateListener).also { referrerServiceConnection ->
+            this.referrerServiceConnection = referrerServiceConnection
+            if (context.bindService(
+                    serviceIntent,
+                    referrerServiceConnection,
+                    Context.BIND_AUTO_CREATE
+                )
+            ) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun getServiceIntent(): Intent {
         val serviceIntent = Intent(ReferrerClientImpl.SERVICE_ACTION_NAME)
         val componentName = ComponentName(
             ReferrerClientImpl.SERVICE_PACKAGE_NAME,
             ReferrerClientImpl.SERVICE_NAME
         )
         serviceIntent.component = componentName
-        val resolvedServices: List<*> =
-            context.packageManager.queryIntentServices(serviceIntent, 0)
-        if (resolvedServices.isNullOrEmpty().not()) {
-            val resolveInfo = resolvedServices.first() as ResolveInfo
-            resolveInfo.serviceInfo?.let {
-                val serviceInfo = resolveInfo.serviceInfo
-                val packageName = serviceInfo.packageName
-                val name = resolveInfo.serviceInfo.name
-                if ((ReferrerClientImpl.SERVICE_PACKAGE_NAME == packageName).and(name != null)) {
-                    ReferrerServiceConnection(stateListener).also { referrerServiceConnection ->
-                        this.referrerServiceConnection = referrerServiceConnection
-                        if (context.bindService(
-                                serviceIntent,
-                                referrerServiceConnection,
-                                Context.BIND_AUTO_CREATE
-                            )
-                        ) {
-                            return true
-                        }
-                    }
-                }
-            }
-        }
-        return false
+        return serviceIntent
     }
 
     override fun stopConnection() {
