@@ -31,7 +31,7 @@ class ReferrerClientConnectionService(
         service?.consumeReferrer(context.packageName, installTime)
     }
 
-    override fun startConnection(): Boolean {
+    override suspend fun startConnection(): Boolean {
         val serviceIntent = Intent(ReferrerClientImpl.SERVICE_ACTION_NAME)
         val componentName = ComponentName(
             ReferrerClientImpl.SERVICE_PACKAGE_NAME,

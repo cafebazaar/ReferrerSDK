@@ -3,7 +3,7 @@ package ir.cafebazaar.referrersdk
 import android.content.Context
 
 abstract class ReferrerClient: ClientState() {
-    abstract fun startConnection(stateListener: ReferrerStateListener)
+    abstract suspend fun startConnection(stateListener: ReferrerStateListener)
     abstract fun endConnection()
     abstract val isReady: Boolean
     abstract val referrer: ReferrerDetails?

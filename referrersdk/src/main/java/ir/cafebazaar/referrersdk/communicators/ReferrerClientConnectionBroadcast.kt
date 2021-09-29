@@ -41,7 +41,7 @@ class ReferrerClientConnectionBroadcast(
         }.run(::sendBroadcast)
     }
 
-    override fun startConnection(): Boolean {
+    override suspend fun startConnection(): Boolean {
         coroutineScope?.cancel()
         coroutineScope = CoroutineScope(Dispatchers.Main)
         ReferrerReceiver.addObserver(this)

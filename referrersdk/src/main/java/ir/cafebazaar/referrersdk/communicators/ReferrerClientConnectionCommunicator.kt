@@ -11,6 +11,6 @@ internal interface ReferrerClientConnectionCommunicator {
     val stateListener: ReferrerStateListener
     val referrerBundle: Bundle?
     fun consumeReferrer(installTime: Long)
-    fun startConnection(): Boolean
+    suspend fun startConnection(): Boolean
     fun stopConnection()
 }
