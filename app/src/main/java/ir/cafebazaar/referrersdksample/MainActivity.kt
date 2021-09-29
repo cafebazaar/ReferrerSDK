@@ -15,19 +15,22 @@ class MainActivity : AppCompatActivity() {
     private lateinit var installTimeTextView: TextView
     private lateinit var clickTimeTextView: TextView
     private lateinit var mainViewModel: MainViewModel
-    private var _referrerClient: ReferrerClient? = null
-    private val referrerClient: ReferrerClient
-    get() = requireNotNull(_referrerClient)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initUI()
-        _referrerClient = ReferrerClient.newBuilder(applicationContext).build()
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        mainViewModel.referrerResponseState.observe(this) { referrerResponseState ->
-            handleReferrerResponse(referrerResponseState)
+        with(mainViewModel) {
+            referrerResponseState.observe(this@MainActivity) { referrerResponseState ->
+                handleReferrerResponse(referrerResponseState)
+            }
+            referrerContent.observe(this@MainActivity) { referrerDetails ->
+                showMessages(referrerDetails)
+            }
+            errorDuringGettingReferrerAndConsumeIt.observe(this@MainActivity) { error ->
+                showError(error)
+            }
         }
-        mainViewModel.onCreate(referrerClient)
     }
 
     private fun initUI() {
@@ -40,18 +43,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        mainViewModel.onResume()
+        hideError()
+    }
+
+    private fun hideError() {
         showError("")
     }
 
     private fun handleReferrerResponse(referrerResponse: Int) {
         when (referrerResponse) {
             ReferrerClient.OK -> {
-                referrerClient.referrer?.let {
-                    showMessages(it)
-                    referrerClient.consumeReferrer(it.installBeginTimestampMilliseconds)
-                } ?: kotlin.run {
-                    showError("THERE IS NO REFERRER")
-                }
+                mainViewModel.getAndConsumeReferrer()
             }
             ReferrerClient.DEVELOPER_ERROR -> {
                 showError("DEVELOPER_ERROR")
