@@ -28,7 +28,7 @@ internal class ReferrerClientConnectionService(
         service?.consumeReferrer(context.packageName, installTime)
     }
 
-    override suspend fun startConnection(): Boolean {
+    override fun startConnection(): Boolean {
         val serviceIntent = getServiceIntent()
         getResolveInfo(serviceIntent)?.let { resolvedServiceInfo ->
             resolvedServiceInfo.serviceInfo?.let { serviceInfo ->

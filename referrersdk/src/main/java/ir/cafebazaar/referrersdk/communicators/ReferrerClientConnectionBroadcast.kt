@@ -3,13 +3,10 @@ package ir.cafebazaar.referrersdk.communicators
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import ir.cafebazaar.referrersdk.AbortableCountDownLatch
-import ir.cafebazaar.referrersdk.ClientState
+import ir.cafebazaar.referrersdk.*
 import ir.cafebazaar.referrersdk.ClientState.Companion.CONNECTED
 import ir.cafebazaar.referrersdk.ClientState.Companion.DISCONNECTED
-import ir.cafebazaar.referrersdk.ReferrerClient
 import ir.cafebazaar.referrersdk.ReferrerClientImpl.Companion.SERVICE_PACKAGE_NAME
-import ir.cafebazaar.referrersdk.ReferrerStateListener
 import ir.cafebazaar.referrersdk.receiver.ReferrerReceiver
 import ir.cafebazaar.referrersdk.receiver.ReferrerReceiverCommunicator
 import kotlinx.coroutines.*
@@ -41,7 +38,7 @@ internal class ReferrerClientConnectionBroadcast(
         }.run(::sendBroadcast)
     }
 
-    override suspend fun startConnection(): Boolean {
+    override fun startConnection(): Boolean {
         coroutineScope?.cancel()
         coroutineScope = CoroutineScope(Dispatchers.Main)
         ReferrerReceiver.addObserver(this)

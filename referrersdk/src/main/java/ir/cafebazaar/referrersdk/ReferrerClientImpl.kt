@@ -17,7 +17,7 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
     override val isReady: Boolean
         get() = (clientState == CONNECTED).and(referrerClientConnection != null)
 
-    override suspend fun startConnection(stateListener: ReferrerStateListener) {
+    override fun startConnection(stateListener: ReferrerStateListener) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw IllegalThreadStateException(OFF_MAIN_THREAD_EXCEPTION)
         }
@@ -52,7 +52,7 @@ internal class ReferrerClientImpl(private val mApplicationContext: Context) : Re
         }
     }
 
-    private suspend fun tryToConnect(stateListener: ReferrerStateListener): Boolean {
+    private fun tryToConnect(stateListener: ReferrerStateListener): Boolean {
         clientState = CONNECTING
         ReferrerClientConnectionService(mApplicationContext, this, stateListener).also { connection ->
             if (connection.startConnection()) {

@@ -9,7 +9,7 @@ abstract class ReferrerClient: ClientState() {
      * @throws Exception You have to call this function off the main thread
      * otherwise it throws an exception.
      */
-    abstract suspend fun startConnection(stateListener: ReferrerStateListener)
+    abstract fun startConnection(stateListener: ReferrerStateListener)
     abstract fun endConnection()
     abstract val isReady: Boolean
     abstract val referrer: ReferrerDetails?
