@@ -13,8 +13,8 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
 
     private val referrerClient: ReferrerClient = ReferrerClient.newBuilder(application).build()
     private val stateListener = object : ReferrerStateListener {
-        override fun onReferrerSetupFinished(referrerResponseState: ReferrerSDKStates) {
-            _referrerResponseState.postValue(referrerResponseState)
+        override fun onReferrerSetupFinished(referrerResponse: ReferrerSDKStates) {
+            _referrerResponseState.postValue(referrerResponse)
         }
 
         override fun onReferrerServiceDisconnected() {

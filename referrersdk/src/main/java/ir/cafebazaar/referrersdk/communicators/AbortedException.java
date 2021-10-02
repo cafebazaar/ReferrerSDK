@@ -1,4 +1,4 @@
-package ir.cafebazaar.referrersdk;
+package ir.cafebazaar.referrersdk.communicators;
 
 public class AbortedException extends InterruptedException {
     public AbortedException() {

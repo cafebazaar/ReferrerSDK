@@ -1,11 +1,11 @@
-package ir.cafebazaar.referrersdk;
+package ir.cafebazaar.referrersdk.communicators;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class AbortableCountDownLatch extends CountDownLatch {
+class AbortableCountDownLatch extends CountDownLatch {
     private boolean aborted = false;
 
     public AbortableCountDownLatch(int count) {
