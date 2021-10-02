@@ -49,7 +49,7 @@ internal class ReferrerClientConnectionService(
         return null
     }
 
-    private fun isPackageNameValid(packageName: String?, name: String?) =
+    private fun isPackageNameValid(packageName: String?, name: String?): Boolean =
         (ReferrerClientImpl.SERVICE_PACKAGE_NAME == packageName).and(name != null)
 
     private fun bindService(serviceIntent: Intent): Boolean {
