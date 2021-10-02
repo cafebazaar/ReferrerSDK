@@ -1,49 +1,43 @@
-package ir.cafebazaar.referrersdk.communicators;
+package ir.cafebazaar.referrersdk.communicators
 
-import org.jetbrains.annotations.NotNull;
+import java.util.concurrent.CountDownLatch
+import kotlin.Throws
+import java.lang.InterruptedException
+import java.util.concurrent.TimeUnit
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+internal class AbortableCountDownLatch(count: Int) : CountDownLatch(count) {
 
-class AbortableCountDownLatch extends CountDownLatch {
-    private boolean aborted = false;
-
-    public AbortableCountDownLatch(int count) {
-        super(count);
-    }
-
+    private var aborted = false
 
     /**
      * Unblocks all threads waiting on this latch and cause them to receive an
      * AbortedException.  If the latch has already counted all the way down,
      * this method does nothing.
      */
-    public void abort() {
-        if (getCount() == 0) {
-            return;
+    fun abort() {
+        if (count == 0L) {
+            return
         }
-
-        this.aborted = true;
-        while (getCount() > 0) {
-            countDown();
+        aborted = true
+        while (count > 0) {
+            countDown()
         }
     }
 
-
-    @Override
-    public boolean await(long timeout, @NotNull TimeUnit unit) throws InterruptedException {
-        final boolean awaitForSuper = super.await(timeout, unit);
+    @Throws(InterruptedException::class)
+    override fun await(timeout: Long, unit: TimeUnit): Boolean {
+        val awaitForSuper = super.await(timeout, unit)
         if (aborted) {
-            throw new AbortedException();
+            throw AbortedException()
         }
-        return awaitForSuper;
+        return awaitForSuper
     }
 
-    @Override
-    public void await() throws InterruptedException {
-        super.await();
+    @Throws(InterruptedException::class)
+    override fun await() {
+        super.await()
         if (aborted) {
-            throw new AbortedException();
+            throw AbortedException()
         }
     }
 }
