@@ -7,9 +7,6 @@ import android.content.Intent
 internal class ReferrerReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         intent?.apply {
-            intent.extras?.let { bundle ->
-                putExtras(bundle)
-            }
             notifyObservers(this)
         }
     }
