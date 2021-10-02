@@ -30,7 +30,7 @@ internal class ReferrerClientConnectionService(
 
     override suspend fun startConnection(): Boolean {
         val serviceIntent = getServiceIntent()
-        getResovleInfo(serviceIntent)?.let { resolvedServiceInfo ->
+        getResolveInfo(serviceIntent)?.let { resolvedServiceInfo ->
             resolvedServiceInfo.serviceInfo?.let { serviceInfo ->
                 if (isPackageNameValid(serviceInfo.packageName, serviceInfo.name)) {
                     return bindService(serviceIntent)
@@ -40,7 +40,7 @@ internal class ReferrerClientConnectionService(
         return false
     }
 
-    private fun getResovleInfo(serviceIntent: Intent): ResolveInfo? {
+    private fun getResolveInfo(serviceIntent: Intent): ResolveInfo? {
         val resolvedServices: List<*> =
             context.packageManager.queryIntentServices(serviceIntent, 0)
         if (resolvedServices.isNullOrEmpty().not()) {
