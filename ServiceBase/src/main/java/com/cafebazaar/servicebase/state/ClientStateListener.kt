@@ -1,6 +1,6 @@
 package com.cafebazaar.servicebase.state
 
 interface ClientStateListener {
-    fun onSetupFinished(response: Int)
-    fun onServiceDisconnected()
+    fun onReady()
+    fun onError(clientError: ClientError)
 }

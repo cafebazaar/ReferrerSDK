@@ -1,17 +1,14 @@
-package ir.cafebazaar.referrersdk.communicators
+package com.cafebazaar.referrersdk.communicators
 
 import java.util.concurrent.CountDownLatch
-import kotlin.Throws
-import java.lang.InterruptedException
 import java.util.concurrent.TimeUnit
 
 internal class AbortableCountDownLatch(count: Int) : CountDownLatch(count) {
-
     private var aborted = false
 
     /**
      * Unblocks all threads waiting on this latch and cause them to receive an
-     * AbortedException.  If the latch has already counted all the way down,
+     * com.cafebazaar.referrersdk.communicators.AbortedException.  If the latch has already counted all the way down,
      * this method does nothing.
      */
     fun abort() {

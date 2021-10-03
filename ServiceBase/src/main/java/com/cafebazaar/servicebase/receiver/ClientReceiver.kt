@@ -1,12 +1,19 @@
 package com.cafebazaar.servicebase.receiver
 
 import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import com.cafebazaar.servicebase.communicator.ClientReceiverCommunicator
 
-abstract class ClientReceiver: BroadcastReceiver() {
+class ClientReceiver: BroadcastReceiver() {
 
-    protected fun notifyObservers(intent: Intent) {
+    override fun onReceive(context: Context?, intent: Intent?) {
+        intent?.apply {
+            notifyObservers(this)
+        }
+    }
+
+    private fun notifyObservers(intent: Intent) {
         synchronized(observerLock) {
             for (observer in observers) {
                 observer.onNewBroadcastReceived(intent)
