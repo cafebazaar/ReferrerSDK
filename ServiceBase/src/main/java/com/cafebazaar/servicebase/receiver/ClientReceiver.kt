@@ -8,8 +8,8 @@ import com.cafebazaar.servicebase.communicator.ClientReceiverCommunicator
 class ClientReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        intent?.apply {
-            notifyObservers(this)
+        intent?.let {
+            notifyObservers(it)
         }
     }
 
