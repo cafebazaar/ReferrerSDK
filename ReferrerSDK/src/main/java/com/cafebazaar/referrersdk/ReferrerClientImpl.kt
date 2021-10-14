@@ -9,6 +9,7 @@ import com.cafebazaar.referrersdk.communicators.ReferrerClientConnectionService
 import com.cafebazaar.referrersdk.communicators.ReferrerConnectionFunctions
 import com.cafebazaar.referrersdk.model.ReferrerDetails
 import com.cafebazaar.referrersdk.model.ReferrerDetailsImpl
+import com.cafebazaar.servicebase.state.ClientError
 
 internal class ReferrerClientImpl(private val applicationContext: Application) : Client(applicationContext),
     ReferrerClient {
@@ -37,7 +38,10 @@ internal class ReferrerClientImpl(private val applicationContext: Application) :
                     return@runIfReady ReferrerDetailsImpl(it)
                 }
             } catch (exception: RemoteException) {
-                errorOccurred("Error during getting referrer details")
+                errorOccurred(
+                    ClientError.RunTime.ERROR_DURING_GETTING_REFERRER_DETAILS_MESSAGE,
+                    ClientError.RunTime.ERROR_DURING_GETTING_REFERRER_DETAILS_CODE
+                )
                 throw exception
             }
         }?.let { result ->
@@ -54,7 +58,10 @@ internal class ReferrerClientImpl(private val applicationContext: Application) :
             try {
                 clientConnection?.toReferrerConnectionFunctions()?.consumeReferrer(installTime)
             } catch (exception: RemoteException) {
-                errorOccurred("Error during consuming referrer")
+                errorOccurred(
+                    ClientError.RunTime.ERROR_DURING_CONSUMING_REFERRER_MESSAGE,
+                    ClientError.RunTime.ERROR_DURING_CONSUMING_REFERRER_CODE
+                )
                 throw exception
             }
         }
