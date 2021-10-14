@@ -21,13 +21,59 @@ abstract class Client(private val context: Context) {
 
     fun startConnection(clientStateListener: ClientStateListener) {
         this.clientStateListener = clientStateListener
-        if (verifyBazaarIsInstalled(context).not()){
-            clientState = DISCONNECTED
-            clientStateListener.onError(
-                ClientError.ServiceUnAvailable("Bazaar Client Is Not Installed")
-            )
-            return
+        if (handleStateForBazaarIsNotInstalled(clientStateListener)) return
+        if (handleStateForIncompatbleBazaarVersion(clientStateListener)) return
+        throwExceptionIfRunningOnMainThread()
+        handleStartingConnection(clientStateListener)
+    }
+
+    private fun handleStartingConnection(clientStateListener: ClientStateListener) {
+        if (isReady.not()) {
+            if (isConnecting(clientStateListener)) return
+            tryToConnect(clientStateListener)
+        } else {
+            clientStateListener.onReady()
         }
+    }
+
+    private fun tryToConnect(clientStateListener: ClientStateListener) {
+        clientState = CONNECTING
+        getConnectionsList()?.forEach { connection ->
+            if (connection is ClientReceiverCommunicator) {
+                ClientReceiver.addObserver(connection)
+            }
+            if (connection.startConnection()) {
+                clientConnection = connection
+                clientState = CONNECTED
+                clientStateListener.onReady()
+                return
+            }
+        }
+        clientState = DISCONNECTED
+        clientStateListener.onError(
+            ClientError.ServiceUnAvailable("SDK Could Not Connect")
+        )
+    }
+
+    private fun isConnecting(clientStateListener: ClientStateListener): Boolean {
+        if (clientState == CONNECTING) {
+            clientStateListener.onError(
+                ClientError.DeveloperError("SDK Is Started")
+            )
+            return true
+        }
+        return false
+    }
+
+    private fun throwExceptionIfRunningOnMainThread() {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            throw IllegalThreadStateException(OFF_MAIN_THREAD_EXCEPTION)
+        }
+    }
+
+    private fun handleStateForIncompatbleBazaarVersion(
+        clientStateListener: ClientStateListener
+    ): Boolean {
         val bazaarVersionCode = getPackageInfo(context)?.let {
             sdkAwareVersionCode(it)
         } ?: 0L
@@ -36,37 +82,20 @@ abstract class Client(private val context: Context) {
             clientStateListener.onError(
                 ClientError.ServiceUnAvailable("Bazaar Client Is Not Compatible")
             )
-            return
+            return true
         }
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            throw IllegalThreadStateException(OFF_MAIN_THREAD_EXCEPTION)
-        }
-        if (isReady.not()) {
-            if (clientState == CONNECTING) {
-                clientStateListener.onError(
-                    ClientError.DeveloperError("SDK Is Started")
-                )
-                return
-            }
-            clientState = CONNECTING
-            getConnectionsList()?.forEach { connection ->
-                if (connection is ClientReceiverCommunicator) {
-                    ClientReceiver.addObserver(connection)
-                }
-                if (connection.startConnection()) {
-                    clientConnection = connection
-                    clientState = CONNECTED
-                    clientStateListener.onReady()
-                    return
-                }
-            }
+        return false
+    }
+
+    private fun handleStateForBazaarIsNotInstalled(clientStateListener: ClientStateListener): Boolean {
+        if (verifyBazaarIsInstalled(context).not()) {
             clientState = DISCONNECTED
             clientStateListener.onError(
-                ClientError.ServiceUnAvailable("SDK Could Not Connect")
+                ClientError.ServiceUnAvailable("Bazaar Client Is Not Installed")
             )
-        } else {
-            clientStateListener.onReady()
+            return true
         }
+        return false
     }
 
     fun endConnection() {
