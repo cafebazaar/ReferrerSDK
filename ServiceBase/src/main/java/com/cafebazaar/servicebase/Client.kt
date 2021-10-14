@@ -15,7 +15,8 @@ abstract class Client(private val context: Context) {
     private var clientStateListener: ClientStateListener? = null
 
     protected abstract val supportedClientVersion: Long
-    protected abstract fun getConnectionsList(): List<ClientConnectionCommunicator>?
+    protected abstract fun getServiceConnection(): ClientConnectionCommunicator?
+    protected abstract fun getBroadcastConnections(): ClientConnectionCommunicator?
 
     @Volatile private var clientState = DISCONNECTED
     @Volatile protected var clientConnection: ClientConnectionCommunicator? = null
@@ -43,7 +44,16 @@ abstract class Client(private val context: Context) {
 
     private fun tryToConnect(clientStateListener: ClientStateListener) {
         clientState = CONNECTING
-        getConnectionsList()?.forEach { connection ->
+        if (tryConnectingByService(clientStateListener)) return
+        if (tryConnectingByBroadcast(clientStateListener)) return
+        clientState = DISCONNECTED
+        clientStateListener.onError(
+            ClientError.ServiceUnAvailable("SDK Could Not Connect")
+        )
+    }
+
+    private fun tryConnectingByBroadcast(clientStateListener: ClientStateListener): Boolean {
+        getBroadcastConnections()?.let { connection ->
             if (connection is ClientReceiverCommunicator) {
                 ClientReceiver.addObserver(connection)
             }
@@ -51,13 +61,22 @@ abstract class Client(private val context: Context) {
                 clientConnection = connection
                 clientState = CONNECTED
                 clientStateListener.onReady()
-                return
+                return true
             }
         }
-        clientState = DISCONNECTED
-        clientStateListener.onError(
-            ClientError.ServiceUnAvailable("SDK Could Not Connect")
-        )
+        return false
+    }
+
+    private fun tryConnectingByService(clientStateListener: ClientStateListener): Boolean {
+        getServiceConnection()?.let { connection ->
+            if (connection.startConnection()) {
+                clientConnection = connection
+                clientState = CONNECTED
+                clientStateListener.onReady()
+                return true
+            }
+        }
+        return false
     }
 
     private fun isConnecting(clientStateListener: ClientStateListener): Boolean {

@@ -16,14 +16,15 @@ internal class ReferrerClientImpl(private val applicationContext: Application) :
     override val supportedClientVersion: Long
         get() = SUPPORTED_BAZAAR_CLIENT_VERSION
 
-    override fun getConnectionsList(): List<ClientConnectionCommunicator> {
-        return listOf<ClientConnectionCommunicator>(
-            ReferrerClientConnectionService(
-                applicationContext
-            ),
-            ReferrerClientConnectionBroadcast(
-                applicationContext
-            )
+    override fun getServiceConnection(): ClientConnectionCommunicator {
+        return ReferrerClientConnectionService(
+            applicationContext
+        )
+    }
+
+    override fun getBroadcastConnections(): ClientConnectionCommunicator {
+        return ReferrerClientConnectionBroadcast(
+            applicationContext
         )
     }
 
