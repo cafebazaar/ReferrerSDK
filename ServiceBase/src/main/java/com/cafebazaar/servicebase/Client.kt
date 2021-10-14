@@ -11,13 +11,18 @@ import com.cafebazaar.servicebase.state.ClientError
 import com.cafebazaar.servicebase.state.ClientStateListener
 
 abstract class Client(private val context: Context) {
+
     private var clientStateListener: ClientStateListener? = null
+
     protected abstract val supportedClientVersion: Long
     protected abstract fun getConnectionsList(): List<ClientConnectionCommunicator>?
+
     @Volatile private var clientState = DISCONNECTED
     @Volatile protected var clientConnection: ClientConnectionCommunicator? = null
+
     private val isReady: Boolean
-        get() = (clientState == CONNECTED).and(clientConnection != null)
+        get() = (clientState == CONNECTED)
+            .and(clientConnection != null)
 
     fun startConnection(clientStateListener: ClientStateListener) {
         this.clientStateListener = clientStateListener
@@ -74,10 +79,7 @@ abstract class Client(private val context: Context) {
     private fun handleStateForIncompatbleBazaarVersion(
         clientStateListener: ClientStateListener
     ): Boolean {
-        val bazaarVersionCode = getPackageInfo(context)?.let {
-            sdkAwareVersionCode(it)
-        } ?: 0L
-        if (bazaarVersionCode < supportedClientVersion) {
+        if (getBazaarVersionCode() < supportedClientVersion) {
             clientState = DISCONNECTED
             clientStateListener.onError(
                 ClientError.ServiceUnAvailable("Bazaar Client Is Not Compatible")
@@ -86,6 +88,10 @@ abstract class Client(private val context: Context) {
         }
         return false
     }
+
+    private fun getBazaarVersionCode() = getPackageInfo(context)?.let {
+        sdkAwareVersionCode(it)
+    } ?: 0L
 
     private fun handleStateForBazaarIsNotInstalled(clientStateListener: ClientStateListener): Boolean {
         if (verifyBazaarIsInstalled(context).not()) {
@@ -143,10 +149,11 @@ abstract class Client(private val context: Context) {
     }
 
     companion object {
+        const val SERVICE_PACKAGE_NAME = "com.farsitel.bazaar"
+
         private const val OFF_MAIN_THREAD_EXCEPTION = "This function has to call off the main thread."
         private const val SERVICE_IS_NOT_STARTED_EXCEPTION =
             "Service not connected. Please start a connection before using the service."
-        const val SERVICE_PACKAGE_NAME = "com.farsitel.bazaar"
         private const val DISCONNECTED = 0
         private const val CONNECTING = 1
         private const val CONNECTED = 2

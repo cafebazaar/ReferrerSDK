@@ -15,6 +15,7 @@ internal class ReferrerClientConnectionBroadcast(
 
     private val abortableCountDownLatch = AbortableCountDownLatch(ABORTABLE_COUNT_DOWN_LATCH_COUNT)
     private var referrerResponseBundle: Bundle? = null
+
     override val referrerBundle: Bundle?
         get() {
             getNewIntentForBroadcast().apply {

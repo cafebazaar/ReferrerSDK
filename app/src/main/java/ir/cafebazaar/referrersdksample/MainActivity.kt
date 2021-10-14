@@ -8,12 +8,14 @@ import com.cafebazaar.referrersdk.model.ReferrerDetails
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var errorTextView: TextView
     private lateinit var referrerContentTextView: TextView
     private lateinit var versionTextView: TextView
     private lateinit var installTimeTextView: TextView
     private lateinit var clickTimeTextView: TextView
     private lateinit var mainViewModel: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -48,10 +50,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showMessages(referrerDetails: ReferrerDetails) {
-        clickTimeTextView.text = referrerDetails.referrerClickTimestampMilliseconds.millisecondsToTime()
-        installTimeTextView.text = referrerDetails.installBeginTimestampMilliseconds.millisecondsToTime()
-        versionTextView.text = referrerDetails.appVersion.toString()
-        referrerContentTextView.text = referrerDetails.referrer.toString()
+        clickTimeTextView.text =
+            referrerDetails.referrerClickTimestampMilliseconds.millisecondsToTime()
+
+        installTimeTextView.text =
+            referrerDetails.installBeginTimestampMilliseconds.millisecondsToTime()
+
+        versionTextView.text =
+            referrerDetails.appVersion.toString()
+
+        referrerContentTextView.text =
+            referrerDetails.referrer.toString()
     }
 
     private fun showError(message: String) {

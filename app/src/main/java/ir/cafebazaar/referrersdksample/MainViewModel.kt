@@ -24,8 +24,10 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
     }
     private val _referrerContent = MutableLiveData<ReferrerDetails>()
     val referrerContent: LiveData<ReferrerDetails> = _referrerContent
+
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
+
     fun onResume() {
         viewModelScope.launch(Dispatchers.IO) {
             referrerClient.startConnection(stateListener)

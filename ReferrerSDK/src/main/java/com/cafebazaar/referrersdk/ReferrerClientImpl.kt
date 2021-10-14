@@ -63,11 +63,11 @@ internal class ReferrerClientImpl(private val applicationContext: Application) :
         return this as ReferrerConnectionFunctions
     }
 
-    companion object {
-        internal const val SUPPORTED_BAZAAR_CLIENT_VERSION = 1400600L
-        internal const val KEY_PACKAGE_NAME = "package_name"
-        internal const val SERVICE_NAME =
+    internal companion object {
+        const val SUPPORTED_BAZAAR_CLIENT_VERSION = 1400600L
+        const val KEY_PACKAGE_NAME = "package_name"
+        const val SERVICE_NAME =
             "com.farsitel.bazaar.referrerprovider.ReferrerProviderService"
-        internal const val SERVICE_ACTION_NAME = "com.cafebazaar.referrer.BIND"
+        const val SERVICE_ACTION_NAME = "com.cafebazaar.referrer.BIND"
     }
 }
