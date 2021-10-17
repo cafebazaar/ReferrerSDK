@@ -48,10 +48,7 @@ abstract class Client(private val context: Context) {
         if (tryConnectingByBroadcast(clientStateListener)) return
         clientState = DISCONNECTED
         clientStateListener.onError(
-            ClientError.ServiceUnAvailable(
-                ClientError.ServiceUnAvailable.SDK_COULD_NOT_CONNECT_MESSAGE,
-                ClientError.ServiceUnAvailable.SDK_COULD_NOT_CONNECT_CODE
-            )
+            ClientError.ERROR_SDK_COULD_NOT_CONNECT
         )
     }
 
@@ -85,10 +82,7 @@ abstract class Client(private val context: Context) {
     private fun isConnecting(clientStateListener: ClientStateListener): Boolean {
         if (clientState == CONNECTING) {
             clientStateListener.onError(
-                ClientError.DeveloperError(
-                    ClientError.DeveloperError.SDK_IS_STARTED_MESSAGE,
-                    ClientError.DeveloperError.SDK_IS_STARTED_CODE
-                )
+                ClientError.ERROR_SDK_IS_STARTED
             )
             return true
         }
@@ -107,10 +101,7 @@ abstract class Client(private val context: Context) {
         if (getBazaarVersionCode() < supportedClientVersion) {
             clientState = DISCONNECTED
             clientStateListener.onError(
-                ClientError.ServiceUnAvailable(
-                    ClientError.ServiceUnAvailable.BAZAAR_IS_NOT_COMPATIBLE_MESSAGE,
-                    ClientError.ServiceUnAvailable.BAZAAR_IS_NOT_COMPATIBLE_CODE
-                )
+                ClientError.ERROR_BAZAAR_IS_NOT_COMPATIBLE
             )
             return true
         }
@@ -125,10 +116,7 @@ abstract class Client(private val context: Context) {
         if (verifyBazaarIsInstalled(context).not()) {
             clientState = DISCONNECTED
             clientStateListener.onError(
-                ClientError.ServiceUnAvailable(
-                    ClientError.ServiceUnAvailable.BAZAAR_IS_NOT_INSTALL_MESSAGE,
-                    ClientError.ServiceUnAvailable.BAZAAR_IS_NOT_INSTALL_CODE
-                )
+                ClientError.ERROR_BAZAAR_IS_NOT_INSTALL
             )
             return true
         }
@@ -146,8 +134,8 @@ abstract class Client(private val context: Context) {
         clientState = DISCONNECTED
     }
 
-    protected fun errorOccurred(errorMessage: String, errorCode: Int) {
-        clientStateListener?.onError(ClientError.RunTime(errorMessage, errorCode))
+    protected fun errorOccurred(clientError: ClientError) {
+        clientStateListener?.onError(clientError)
     }
 
     protected fun runIfReady(block: () -> Any?): Any? {

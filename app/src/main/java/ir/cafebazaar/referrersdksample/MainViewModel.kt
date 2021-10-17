@@ -36,13 +36,16 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
 
     private fun handleReferrerError(referrerError: ClientError) {
         when (referrerError) {
-            is ClientError.ServiceUnAvailable -> {
+            ClientError.ERROR_BAZAAR_IS_NOT_INSTALL,
+            ClientError.ERROR_BAZAAR_IS_NOT_COMPATIBLE,
+            ClientError.ERROR_SDK_COULD_NOT_CONNECT -> {
                 _errorMessage.postValue(referrerError.message)
             }
-            is ClientError.DeveloperError -> {
+            ClientError.ERROR_SDK_IS_STARTED -> {
                 _errorMessage.postValue(referrerError.message)
             }
-            is ClientError.RunTime ->  {
+            ClientError.ERROR_DURING_GETTING_REFERRER_DETAILS,
+            ClientError.ERROR_DURING_CONSUMING_REFERRER ->  {
                 _errorMessage.postValue(referrerError.message)
             }
         }

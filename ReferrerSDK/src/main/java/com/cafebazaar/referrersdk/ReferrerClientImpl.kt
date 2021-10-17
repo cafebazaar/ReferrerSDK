@@ -39,8 +39,7 @@ internal class ReferrerClientImpl(private val applicationContext: Application) :
                 }
             } catch (exception: RemoteException) {
                 errorOccurred(
-                    ClientError.RunTime.ERROR_DURING_GETTING_REFERRER_DETAILS_MESSAGE,
-                    ClientError.RunTime.ERROR_DURING_GETTING_REFERRER_DETAILS_CODE
+                    ClientError.ERROR_DURING_GETTING_REFERRER_DETAILS
                 )
                 throw exception
             }
@@ -59,8 +58,7 @@ internal class ReferrerClientImpl(private val applicationContext: Application) :
                 clientConnection?.toReferrerConnectionFunctions()?.consumeReferrer(installTime)
             } catch (exception: RemoteException) {
                 errorOccurred(
-                    ClientError.RunTime.ERROR_DURING_CONSUMING_REFERRER_MESSAGE,
-                    ClientError.RunTime.ERROR_DURING_CONSUMING_REFERRER_CODE
+                    ClientError.ERROR_DURING_CONSUMING_REFERRER
                 )
                 throw exception
             }
