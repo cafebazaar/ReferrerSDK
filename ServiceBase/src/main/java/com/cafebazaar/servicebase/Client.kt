@@ -27,13 +27,13 @@ abstract class Client(private val context: Context) {
 
     fun startConnection(clientStateListener: ClientStateListener) {
         this.clientStateListener = clientStateListener
-        if (handleStateForBazaarIsNotInstalled(clientStateListener)) return
-        if (handleStateForIncompatbleBazaarVersion(clientStateListener)) return
+        if (isHandledStateForBazaarIsNotInstalled(clientStateListener)) return
+        if (isHandledStateForIncompatibleBazaarVersion(clientStateListener)) return
         throwExceptionIfRunningOnMainThread()
-        handleStartingConnection(clientStateListener)
+        startingConnection(clientStateListener)
     }
 
-    private fun handleStartingConnection(clientStateListener: ClientStateListener) {
+    private fun startingConnection(clientStateListener: ClientStateListener) {
         if (isReady.not()) {
             if (isConnecting(clientStateListener)) return
             tryToConnect(clientStateListener)
@@ -95,7 +95,7 @@ abstract class Client(private val context: Context) {
         }
     }
 
-    private fun handleStateForIncompatbleBazaarVersion(
+    private fun isHandledStateForIncompatibleBazaarVersion(
         clientStateListener: ClientStateListener
     ): Boolean {
         if (getBazaarVersionCode() < supportedClientVersion) {
@@ -112,7 +112,7 @@ abstract class Client(private val context: Context) {
         sdkAwareVersionCode(it)
     } ?: 0L
 
-    private fun handleStateForBazaarIsNotInstalled(clientStateListener: ClientStateListener): Boolean {
+    private fun isHandledStateForBazaarIsNotInstalled(clientStateListener: ClientStateListener): Boolean {
         if (verifyBazaarIsInstalled(context).not()) {
             clientState = DISCONNECTED
             clientStateListener.onError(
@@ -138,7 +138,7 @@ abstract class Client(private val context: Context) {
         clientStateListener?.onError(clientError)
     }
 
-    protected fun runIfReady(block: () -> Any?): Any? {
+    protected fun <T> runIfReady(block: () -> T?): T? {
         if (isReady.not()) {
             throw IllegalStateException(SERVICE_IS_NOT_STARTED_EXCEPTION)
         } else {
