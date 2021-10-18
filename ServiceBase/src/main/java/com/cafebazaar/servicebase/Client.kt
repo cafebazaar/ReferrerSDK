@@ -1,8 +1,6 @@
 package com.cafebazaar.servicebase
 
 import android.content.Context
-import android.content.pm.PackageInfo
-import android.os.Build
 import android.os.Looper
 import com.cafebazaar.servicebase.communicator.ClientConnectionCommunicator
 import com.cafebazaar.servicebase.communicator.ClientReceiverCommunicator
@@ -98,7 +96,7 @@ abstract class Client(private val context: Context) {
     private fun isHandledStateForIncompatibleBazaarVersion(
         clientStateListener: ClientStateListener
     ): Boolean {
-        if (getBazaarVersionCode() < supportedClientVersion) {
+        if (getBazaarVersionCode(context) < supportedClientVersion) {
             clientState = DISCONNECTED
             clientStateListener.onError(
                 ClientError.ERROR_BAZAAR_IS_NOT_COMPATIBLE
@@ -107,10 +105,6 @@ abstract class Client(private val context: Context) {
         }
         return false
     }
-
-    private fun getBazaarVersionCode() = getPackageInfo(context)?.let {
-        sdkAwareVersionCode(it)
-    } ?: 0L
 
     private fun isHandledStateForBazaarIsNotInstalled(clientStateListener: ClientStateListener): Boolean {
         if (verifyBazaarIsInstalled(context).not()) {
@@ -148,23 +142,6 @@ abstract class Client(private val context: Context) {
 
     private fun verifyBazaarIsInstalled(context: Context): Boolean {
         return getPackageInfo(context) != null
-    }
-
-    private fun getPackageInfo(context: Context): PackageInfo? {
-        return try {
-            val packageManager = context.packageManager
-            packageManager.getPackageInfo(SERVICE_PACKAGE_NAME, 0)
-        } catch (ignored: Exception) {
-            null
-        }
-    }
-
-    private fun sdkAwareVersionCode(packageInfo: PackageInfo): Long {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            packageInfo.longVersionCode
-        } else {
-            packageInfo.versionCode.toLong()
-        }
     }
 
     companion object {
