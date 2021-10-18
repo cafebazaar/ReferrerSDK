@@ -33,7 +33,12 @@ abstract class Client(private val context: Context) {
 
     private fun startingConnection(clientStateListener: ClientStateListener) {
         if (isReady.not()) {
-            if (isConnecting(clientStateListener)) return
+            if (clientState == CONNECTING) {
+                clientStateListener.onError(
+                    ClientError.ERROR_SDK_IS_STARTED
+                )
+                return
+            }
             tryToConnect(clientStateListener)
         } else {
             clientStateListener.onReady()
@@ -73,16 +78,6 @@ abstract class Client(private val context: Context) {
                 clientStateListener.onReady()
                 return true
             }
-        }
-        return false
-    }
-
-    private fun isConnecting(clientStateListener: ClientStateListener): Boolean {
-        if (clientState == CONNECTING) {
-            clientStateListener.onError(
-                ClientError.ERROR_SDK_IS_STARTED
-            )
-            return true
         }
         return false
     }
