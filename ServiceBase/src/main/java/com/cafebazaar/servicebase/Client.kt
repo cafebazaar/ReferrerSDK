@@ -25,10 +25,30 @@ abstract class Client(private val context: Context) {
 
     fun startConnection(clientStateListener: ClientStateListener) {
         this.clientStateListener = clientStateListener
-        if (isHandledStateForBazaarIsNotInstalled(clientStateListener)) return
-        if (isHandledStateForIncompatibleBazaarVersion(clientStateListener)) return
+        if (verifyBazaarIsInstalled(context).not()) {
+            handleErrorOnBazaarIsNotInstalled(clientStateListener)
+            return
+        }
+        if (getBazaarVersionCode(context) < supportedClientVersion) {
+            handleErrorOnBazaarIsNotCompatible(clientStateListener)
+            return
+        }
         throwExceptionIfRunningOnMainThread()
         startingConnection(clientStateListener)
+    }
+
+    private fun handleErrorOnBazaarIsNotCompatible(clientStateListener: ClientStateListener) {
+        clientState = DISCONNECTED
+        clientStateListener.onError(
+            ClientError.ERROR_BAZAAR_IS_NOT_COMPATIBLE
+        )
+    }
+
+    private fun handleErrorOnBazaarIsNotInstalled(clientStateListener: ClientStateListener) {
+        clientState = DISCONNECTED
+        clientStateListener.onError(
+            ClientError.ERROR_BAZAAR_IS_NOT_INSTALL
+        )
     }
 
     private fun startingConnection(clientStateListener: ClientStateListener) {
@@ -86,30 +106,6 @@ abstract class Client(private val context: Context) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw IllegalThreadStateException(OFF_MAIN_THREAD_EXCEPTION)
         }
-    }
-
-    private fun isHandledStateForIncompatibleBazaarVersion(
-        clientStateListener: ClientStateListener
-    ): Boolean {
-        if (getBazaarVersionCode(context) < supportedClientVersion) {
-            clientState = DISCONNECTED
-            clientStateListener.onError(
-                ClientError.ERROR_BAZAAR_IS_NOT_COMPATIBLE
-            )
-            return true
-        }
-        return false
-    }
-
-    private fun isHandledStateForBazaarIsNotInstalled(clientStateListener: ClientStateListener): Boolean {
-        if (verifyBazaarIsInstalled(context).not()) {
-            clientState = DISCONNECTED
-            clientStateListener.onError(
-                ClientError.ERROR_BAZAAR_IS_NOT_INSTALL
-            )
-            return true
-        }
-        return false
     }
 
     fun endConnection() {
