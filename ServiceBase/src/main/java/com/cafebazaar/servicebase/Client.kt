@@ -123,6 +123,7 @@ abstract class Client(private val context: Context) {
         clientStateListener?.onError(clientError)
     }
 
+    @Throws(IllegalStateException::class)
     protected fun <T> runIfReady(block: () -> T?): T? {
         if (isReady.not()) {
             throw IllegalStateException(SERVICE_IS_NOT_STARTED_EXCEPTION)
