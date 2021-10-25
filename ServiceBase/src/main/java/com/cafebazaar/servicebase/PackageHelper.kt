@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.os.Build
 
-internal fun getPackageInfo(context: Context): PackageInfo? {
+internal fun getBazaarPackageInfo(context: Context): PackageInfo? {
     return try {
         val packageManager = context.packageManager
         packageManager.getPackageInfo(Client.SERVICE_PACKAGE_NAME, 0)
@@ -13,7 +13,7 @@ internal fun getPackageInfo(context: Context): PackageInfo? {
     }
 }
 
-internal fun getBazaarVersionCode(context: Context) = getPackageInfo(context)?.let {
+internal fun getBazaarVersionCode(context: Context) = getBazaarPackageInfo(context)?.let {
     sdkAwareVersionCode(it)
 } ?: 0L
 
