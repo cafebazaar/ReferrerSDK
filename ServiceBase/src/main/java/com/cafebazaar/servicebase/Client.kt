@@ -25,16 +25,26 @@ abstract class Client(private val context: Context) {
 
     fun startConnection(clientStateListener: ClientStateListener) {
         this.clientStateListener = clientStateListener
-        if (verifyBazaarIsInstalled(context).not()) {
-            handleErrorOnBazaarIsNotInstalled(clientStateListener)
-            return
-        }
-        if (getBazaarVersionCode(context) < supportedClientVersion) {
-            handleErrorOnBazaarIsNotCompatible(clientStateListener)
-            return
-        }
+        if (isNotBazaarInstalled(clientStateListener)) return
+        if (isNotBazaarCompatible(clientStateListener)) return
         throwExceptionIfRunningOnMainThread()
         startingConnection(clientStateListener)
+    }
+
+    private fun isNotBazaarCompatible(clientStateListener: ClientStateListener): Boolean {
+        if (getBazaarVersionCode(context) < supportedClientVersion) {
+            handleErrorOnBazaarIsNotCompatible(clientStateListener)
+            return true
+        }
+        return false
+    }
+
+    private fun isNotBazaarInstalled(clientStateListener: ClientStateListener): Boolean {
+        if (verifyBazaarIsInstalled(context).not()) {
+            handleErrorOnBazaarIsNotInstalled(clientStateListener)
+            return true
+        }
+        return false
     }
 
     private fun handleErrorOnBazaarIsNotCompatible(clientStateListener: ClientStateListener) {
@@ -133,7 +143,7 @@ abstract class Client(private val context: Context) {
     }
 
     private fun verifyBazaarIsInstalled(context: Context): Boolean {
-        return getPackageInfo(context) != null
+        return getBazaarPackageInfo(context) != null
     }
 
     companion object {
