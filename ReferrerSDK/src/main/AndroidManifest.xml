@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.cafebazaar.referrersdk">
+
+    <queries>
+        <package android:name="com.farsitel.bazaar"/>
+    </queries>
+
+    <uses-permission android:name="com.farsitel.bazaar.permission.REFERRER" />
+
+    <application>
+        <receiver android:name="com.cafebazaar.servicebase.receiver.ClientReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.farsitel.bazaar.referrer.get" />
+                <action android:name="com.farsitel.bazaar.referrer.consume" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

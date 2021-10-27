@@ -4,30 +4,28 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import ir.cafebazaar.referrersdk.ReferrerDetails
-import ir.cafebazaar.referrersdk.ReferrerSDKStates
+import com.cafebazaar.referrersdk.model.ReferrerDetails
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var errorTextView: TextView
     private lateinit var referrerContentTextView: TextView
     private lateinit var versionTextView: TextView
     private lateinit var installTimeTextView: TextView
     private lateinit var clickTimeTextView: TextView
     private lateinit var mainViewModel: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initUI()
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         with(mainViewModel) {
-            referrerResponseState.observe(this@MainActivity) { referrerResponseState ->
-                handleReferrerResponse(referrerResponseState)
-            }
             referrerContent.observe(this@MainActivity) { referrerDetails ->
                 showMessages(referrerDetails)
             }
-            errorDuringGettingReferrerAndConsumeIt.observe(this@MainActivity) { error ->
+            errorMessage.observe(this@MainActivity) { error ->
                 showError(error)
             }
         }
@@ -51,25 +49,18 @@ class MainActivity : AppCompatActivity() {
         showError("")
     }
 
-    private fun handleReferrerResponse(referrerResponse: ReferrerSDKStates) {
-        when (referrerResponse) {
-            is ReferrerSDKStates.Ok -> {
-                mainViewModel.getAndConsumeReferrer()
-            }
-            is ReferrerSDKStates.DeveloperError -> {
-                showError(referrerResponse.message)
-            }
-            is ReferrerSDKStates.ServiceUnAvailable -> {
-                showError("SERVICE_UNAVAILABLE")
-            }
-        }
-    }
-
     private fun showMessages(referrerDetails: ReferrerDetails) {
-        clickTimeTextView.text = referrerDetails.referrerClickTimestampMilliseconds.millisecondsToTime()
-        installTimeTextView.text = referrerDetails.installBeginTimestampMilliseconds.millisecondsToTime()
-        versionTextView.text = referrerDetails.appVersion.toString()
-        referrerContentTextView.text = referrerDetails.referrer.toString()
+        clickTimeTextView.text =
+            referrerDetails.referrerClickTimestampMilliseconds.millisecondsToTime()
+
+        installTimeTextView.text =
+            referrerDetails.installBeginTimestampMilliseconds.millisecondsToTime()
+
+        versionTextView.text =
+            referrerDetails.appVersion.toString()
+
+        referrerContentTextView.text =
+            referrerDetails.referrer.toString()
     }
 
     private fun showError(message: String) {

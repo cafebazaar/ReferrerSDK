@@ -2,43 +2,62 @@ package ir.cafebazaar.referrersdksample
 
 import android.app.Application
 import androidx.lifecycle.*
-import ir.cafebazaar.referrersdk.ReferrerClient
-import ir.cafebazaar.referrersdk.ReferrerDetails
-import ir.cafebazaar.referrersdk.ReferrerSDKStates
-import ir.cafebazaar.referrersdk.ReferrerStateListener
+import com.cafebazaar.servicebase.state.ClientError
+import com.cafebazaar.servicebase.state.ClientStateListener
+import com.cafebazaar.referrersdk.ReferrerClient
+import com.cafebazaar.referrersdk.model.ReferrerDetails
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application): AndroidViewModel(application) {
 
-    private val referrerClient: ReferrerClient = ReferrerClient.newBuilder(application).build()
-    private val stateListener = object : ReferrerStateListener {
-        override fun onReferrerSetupFinished(referrerResponse: ReferrerSDKStates) {
-            _referrerResponseState.postValue(referrerResponse)
+    private val referrerClient: ReferrerClient = ReferrerClient.getClient(application)
+    private val stateListener = object : ClientStateListener {
+
+        override fun onReady() {
+            getAndConsumeReferrer()
         }
 
-        override fun onReferrerServiceDisconnected() {
-            referrerClient.endConnection()
+        override fun onError(clientError: ClientError) {
+            handleReferrerError(clientError)
         }
     }
-    private val _referrerResponseState = MutableLiveData<ReferrerSDKStates>()
-    val referrerResponseState: LiveData<ReferrerSDKStates> = _referrerResponseState
     private val _referrerContent = MutableLiveData<ReferrerDetails>()
     val referrerContent: LiveData<ReferrerDetails> = _referrerContent
-    private val _errorDuringGettingReferrerAndConsumeIt = MutableLiveData<String>()
-    val errorDuringGettingReferrerAndConsumeIt: LiveData<String> = _errorDuringGettingReferrerAndConsumeIt
+
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String> = _errorMessage
+
     fun onResume() {
         viewModelScope.launch(Dispatchers.IO) {
             referrerClient.startConnection(stateListener)
         }
     }
 
-    fun getAndConsumeReferrer() {
-        referrerClient.referrer?.let { referrerDetails ->
+    private fun handleReferrerError(referrerError: ClientError) {
+        when (referrerError) {
+            ClientError.ERROR_BAZAAR_IS_NOT_INSTALL,
+            ClientError.ERROR_BAZAAR_IS_NOT_COMPATIBLE,
+            ClientError.ERROR_SDK_COULD_NOT_CONNECT -> {
+                _errorMessage.postValue(referrerError.message)
+            }
+            ClientError.ERROR_SDK_IS_STARTED -> {
+                _errorMessage.postValue(referrerError.message)
+            }
+            ClientError.ERROR_DURING_GETTING_REFERRER_DETAILS,
+            ClientError.ERROR_DURING_CONSUMING_REFERRER ->  {
+                _errorMessage.postValue(referrerError.message)
+            }
+        }
+    }
+
+    private fun getAndConsumeReferrer() {
+        referrerClient.getReferrerDetails()?.let { referrerDetails ->
             _referrerContent.postValue(referrerDetails)
             referrerClient.consumeReferrer(referrerDetails.installBeginTimestampMilliseconds)
-        } ?: kotlin.run {
-            _errorDuringGettingReferrerAndConsumeIt.postValue("THERE IS NO REFERRER")
+            referrerClient.endConnection()
+        } ?: run {
+            _errorMessage.postValue("THERE IS NO REFERRER")
         }
     }
 }
