@@ -73,7 +73,7 @@ internal class ReferrerClientImpl(private val applicationContext: Application) :
         const val SUPPORTED_BAZAAR_CLIENT_VERSION = 1400600L
         const val KEY_PACKAGE_NAME = "package_name"
         const val SERVICE_NAME =
-            "com.farsitel.bazaar.referrerprovider.ReferrerProviderService"
+            "com.farsitel.bazaar.referrerprovider.ReferrerProviderServiceImpl"
         const val SERVICE_ACTION_NAME = "com.cafebazaar.referrer.BIND"
     }
 }
