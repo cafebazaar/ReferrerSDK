@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ReferrerSDK</string>
+    <string name="referrer_click_time_label">Referrer Click Time:</string>
+    <string name="referrer_install_time_label">Referrer Install Time:</string>
+    <string name="referrer_version_label">Referrer Version:</string>
+    <string name="referrer_content_label">Referrer Content:</string>
+</resources>
