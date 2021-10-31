@@ -7,5 +7,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "ReferrerSDK"
 include ':app'
-include ':ReferrerSDK'
+include ':Referrer'
 include ':ServiceBase'
