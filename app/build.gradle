@@ -33,7 +33,7 @@ android {
 
 dependencies {
 
-    implementation project(':ReferrerSDK')
+    implementation project(':Referrer')
     implementation "androidx.core:core-ktx:${libraryVersions.corektx}"
     implementation "androidx.appcompat:appcompat:${libraryVersions.appcompat}"
     implementation "com.google.android.material:material:${libraryVersions.material}"
