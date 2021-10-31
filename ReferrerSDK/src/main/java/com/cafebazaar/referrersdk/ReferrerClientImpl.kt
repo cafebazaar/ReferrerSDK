@@ -20,7 +20,9 @@ internal class ReferrerClientImpl(private val applicationContext: Application) :
     override fun getServiceConnection(): ClientConnectionCommunicator {
         return ReferrerClientConnectionService(
             applicationContext
-        )
+        ) {
+            updateClientStateToConnected()
+        }
     }
 
     override fun getBroadcastConnections(): ClientConnectionCommunicator {
