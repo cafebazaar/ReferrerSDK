@@ -77,39 +77,45 @@ abstract class Client(private val context: Context) {
 
     private fun tryToConnect(clientStateListener: ClientStateListener) {
         clientState = CONNECTING
-        if (tryConnectingByService(clientStateListener)) return
-        if (tryConnectingByBroadcast(clientStateListener)) return
+        if (tryConnectingByService()) return
+        if (tryConnectingByBroadcast()) return
         clientState = DISCONNECTED
         clientStateListener.onError(
             ClientError.ERROR_SDK_COULD_NOT_CONNECT
         )
     }
 
-    private fun tryConnectingByBroadcast(clientStateListener: ClientStateListener): Boolean {
+    private fun tryConnectingByBroadcast(): Boolean {
         getBroadcastConnections()?.let { connection ->
             if (connection is ClientReceiverCommunicator) {
                 ClientReceiver.addObserver(connection)
             }
             if (connection.startConnection()) {
                 clientConnection = connection
-                clientState = CONNECTED
-                clientStateListener.onReady()
+                updateClientStateToConnected()
                 return true
             }
         }
         return false
     }
 
-    private fun tryConnectingByService(clientStateListener: ClientStateListener): Boolean {
-        getServiceConnection()?.let { connection ->
-            if (connection.startConnection()) {
-                clientConnection = connection
-                clientState = CONNECTED
-                clientStateListener.onReady()
-                return true
+    private fun tryConnectingByService(): Boolean {
+        synchronized(this) {
+            getServiceConnection()?.let { connection ->
+                if (connection.startConnection()) {
+                    clientConnection = connection
+                    return true
+                }
             }
+            return false
         }
-        return false
+    }
+
+    protected fun updateClientStateToConnected() {
+        synchronized(this) {
+            clientState = CONNECTED
+            clientStateListener?.onReady()
+        }
     }
 
     private fun throwExceptionIfRunningOnMainThread() {

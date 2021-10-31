@@ -13,7 +13,8 @@ import com.cafebazaar.referrersdk.ReferrerClientImpl
 import com.cafebazaar.servicebase.Client.Companion.SERVICE_PACKAGE_NAME
 
 internal class ReferrerClientConnectionService(
-    private val context: Context
+    private val context: Context,
+    private val onConnected: () -> Unit
 ) : ClientConnectionCommunicator, ReferrerConnectionFunctions, ServiceConnection {
 
     private var service: ReferrerProviderService? = null
@@ -50,15 +51,11 @@ internal class ReferrerClientConnectionService(
         (SERVICE_PACKAGE_NAME == packageName).and(name != null)
 
     private fun bindService(serviceIntent: Intent): Boolean {
-        if (context.bindService(
-                serviceIntent,
-                this,
-                Context.BIND_AUTO_CREATE
-            )
-        ) {
-            return true
-        }
-        return false
+        return context.bindService(
+            serviceIntent,
+            this,
+            Context.BIND_AUTO_CREATE
+        )
     }
 
     private fun getServiceIntent(): Intent {
@@ -77,6 +74,7 @@ internal class ReferrerClientConnectionService(
 
     override fun onServiceConnected(name: ComponentName?, iBinder: IBinder?) {
         service = ReferrerProviderService.Stub.asInterface(iBinder)
+        onConnected.invoke()
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
