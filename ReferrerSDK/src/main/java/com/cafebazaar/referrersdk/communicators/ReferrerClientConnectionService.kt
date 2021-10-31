@@ -50,15 +50,11 @@ internal class ReferrerClientConnectionService(
         (SERVICE_PACKAGE_NAME == packageName).and(name != null)
 
     private fun bindService(serviceIntent: Intent): Boolean {
-        if (context.bindService(
-                serviceIntent,
-                this,
-                Context.BIND_AUTO_CREATE
-            )
-        ) {
-            return true
-        }
-        return false
+        return context.bindService(
+            serviceIntent,
+            this,
+            Context.BIND_AUTO_CREATE
+        )
     }
 
     private fun getServiceIntent(): Intent {
