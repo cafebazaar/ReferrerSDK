@@ -3,9 +3,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://jitpack.io' }
     }
 }
 rootProject.name = "ReferrerSDK"
 include ':app'
 include ':Referrer'
-include ':ServiceBase'
