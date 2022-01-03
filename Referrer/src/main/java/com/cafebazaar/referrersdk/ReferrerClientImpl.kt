@@ -72,7 +72,7 @@ internal class ReferrerClientImpl(private val applicationContext: Application) :
     }
 
     internal companion object {
-        const val SUPPORTED_BAZAAR_CLIENT_VERSION = 1400600L
+        const val SUPPORTED_BAZAAR_CLIENT_VERSION = 1700300L
         const val KEY_PACKAGE_NAME = "package_name"
         const val SERVICE_NAME =
             "com.farsitel.bazaar.referrerprovider.ReferrerProviderServiceImpl"

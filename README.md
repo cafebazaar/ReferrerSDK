@@ -4,7 +4,7 @@ To start working with ReferrerSDK, you need to add its dependency into your `bui
 ### Dependency
 ```groovy
 dependencies {
-    implementation "com.github.cafebazaar.referrersdk:referrersdk:[latest_version]"
+    implementation "com.github.cafebazaar:referrersdk:[latest_version]"
 }
 ```
 
