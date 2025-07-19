@@ -15,7 +15,7 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
     private val stateListener = object : ClientStateListener {
 
         override fun onReady() {
-            getAndConsumeReferrer()
+            getReferrer()
         }
 
         override fun onError(clientError: ClientError) {
@@ -51,10 +51,9 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
-    private fun getAndConsumeReferrer() {
+    private fun getReferrer() {
         referrerClient.getReferrerDetails()?.let { referrerDetails ->
             _referrerContent.postValue(referrerDetails)
-            referrerClient.consumeReferrer(referrerDetails.installBeginTimestampMilliseconds)
             referrerClient.endConnection()
         } ?: run {
             _errorMessage.postValue("THERE IS NO REFERRER")
