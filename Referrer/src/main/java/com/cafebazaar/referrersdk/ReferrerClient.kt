@@ -1,8 +1,8 @@
 package com.cafebazaar.referrersdk
 
 import android.app.Application
-import com.cafebazaar.servicebase.state.ClientStateListener
 import com.cafebazaar.referrersdk.model.ReferrerDetails
+import com.cafebazaar.servicebase.state.ClientStateListener
 
 interface ReferrerClient {
     /**
@@ -28,8 +28,26 @@ interface ReferrerClient {
     fun getReferrerDetails(): ReferrerDetails?
 
     /**
-     * Consumes the referrer content in order to avoid getting repetitive referrer content
+     * Consumes the referrer data for the given package name.
+     * <p>
+     * Users were previously required to provide the correct install time (retrieved from
+     * {@code getReferrer()}) in order to consume the referrer data.
+     * </p>
+     *
+     * <p><strong>Deprecated since Bazaar 26.4.0:</strong> This method is no longer supported.
+     * Referrer consumption has been made internal and automatic. As of this version, calling this
+     * method has no effect. Referrer data will now be consumed automatically within 90 days
+     * of installation or upon app uninstall/reinstall.</p>
+     *
+     * @param installTime The install time (in milliseconds) as retrieved from {@code getReferrer()}.
+     *
+     * @deprecated Since Bazaar 26.4.0. This method is now a no-op and should no longer be used.
+     *             Referrer consumption is now handled internally.
      */
+    @Deprecated(
+        level = DeprecationLevel.WARNING,
+        message = "This functions is no-op from 26.4.0 of Bazaar and consume logic has become internal."
+    )
     fun consumeReferrer(installTime: Long)
 
     companion object {
