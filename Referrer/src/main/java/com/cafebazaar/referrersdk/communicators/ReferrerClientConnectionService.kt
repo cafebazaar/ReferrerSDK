@@ -23,6 +23,7 @@ internal class ReferrerClientConnectionService(
         get() = service?.getReferrer(context.packageName)
 
     override fun consumeReferrer(installTime: Long) {
+        @Suppress("DEPRECATION") // It will be removed in next versions
         service?.consumeReferrer(context.packageName, installTime)
     }
 
