@@ -13,10 +13,16 @@ Then you need to add jitpack as your maven repository in `build.gradle`  file:
 ```groovy
 repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven { url 'https://jitpack.io' }
     }
 ```
+
+### Referrer details
+- `referrer`: the referrer string.
+- `referrerClickTimestampMilliseconds` / `installBeginTimestampMilliseconds`: device times. The install begin time is recorded when the download of the first install actually starts and isn't changed by updates.
+- `referrerClickTimestampServerMilliseconds` / `installBeginTimestampServerMilliseconds`: server times with whole-second precision, independent of the device clock. Prefer them for ordering and anti-fraud checks.
+- Every timestamp is epoch milliseconds (UTC), and `-1` (`ReferrerDetails.TIMESTAMP_NOT_AVAILABLE`) means it isn't available, e.g. on older Bazaar versions.
 
 ### How to use
 For more information regarding the usage of ReferrerSDK, please check out the [wiki](https://github.com/cafebazaar/referrersdk/wiki) page.

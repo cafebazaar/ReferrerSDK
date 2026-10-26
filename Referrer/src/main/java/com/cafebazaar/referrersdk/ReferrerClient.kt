@@ -21,8 +21,8 @@ interface ReferrerClient {
     /**
      * Returns the referrer details which consists of
      * Referrer Content
-     * Click Time in Milli Seconds
-     * Install Time in Milli Seconds
+     * Click Time in Milli Seconds (device and server time)
+     * Install Time in Milli Seconds (device and server time)
      * Version of App
      */
     fun getReferrerDetails(): ReferrerDetails?

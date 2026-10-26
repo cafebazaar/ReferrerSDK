@@ -3,11 +3,16 @@ package com.farsitel.bazaar.referrerprovider;
 interface ReferrerProviderService {
     /**
     * Returns the referrer data for given package name
-    * @param packageName The package name of the user application
-    * @return Bundle Contains the referrer data as below:
+    * @param packageName The package name of the user application. It must be the caller's own
+    * package name, otherwise null is returned.
+    * @return Bundle Contains the referrer data as below, or null if there is no referrer:
     * A string value with key equal install_referrer
     * A long value with key equal referrer_click_timestamp_milliseconds
-    * A long value with key equal install_begin_timestamp_milliseconds
+    * A long value with key equal install_begin_timestamp_milliseconds (-1 if not set)
+    * A long value with key equal referrer_click_timestamp_server_milliseconds (-1 if unknown,
+    * missing on older Bazaar versions)
+    * A long value with key equal install_begin_timestamp_server_milliseconds (-1 if unknown,
+    * missing on older Bazaar versions)
     * A string value with key equal app_version
     */
     Bundle getReferrer(String packageName);
