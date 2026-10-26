@@ -14,6 +14,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var versionTextView: TextView
     private lateinit var installTimeTextView: TextView
     private lateinit var clickTimeTextView: TextView
+    private lateinit var installServerTimeTextView: TextView
+    private lateinit var clickServerTimeTextView: TextView
     private lateinit var mainViewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +36,8 @@ class MainActivity : AppCompatActivity() {
     private fun initUI() {
         clickTimeTextView = findViewById(R.id.clicktime)
         installTimeTextView = findViewById(R.id.installtime)
+        clickServerTimeTextView = findViewById(R.id.clickservertime)
+        installServerTimeTextView = findViewById(R.id.installservertime)
         versionTextView = findViewById(R.id.version)
         referrerContentTextView = findViewById(R.id.content)
         errorTextView = findViewById(R.id.error)
@@ -56,6 +60,12 @@ class MainActivity : AppCompatActivity() {
         installTimeTextView.text =
             referrerDetails.installBeginTimestampMilliseconds.millisecondsToTime()
 
+        clickServerTimeTextView.text =
+            referrerDetails.referrerClickTimestampServerMilliseconds.millisecondsToTime()
+
+        installServerTimeTextView.text =
+            referrerDetails.installBeginTimestampServerMilliseconds.millisecondsToTime()
+
         versionTextView.text =
             referrerDetails.appVersion.toString()
 
@@ -68,6 +78,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun Long.millisecondsToTime(): String {
+        if (this == ReferrerDetails.TIMESTAMP_NOT_AVAILABLE) {
+            return "Not available"
+        }
         return Date(this).toString()
     }
 }
