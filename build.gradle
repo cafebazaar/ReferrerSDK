@@ -7,8 +7,7 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$pluginVersions.gradle"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.20"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:$pluginVersions.androidmaven"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$libraryVersions.kotlin"
     }
 }
 allprojects {

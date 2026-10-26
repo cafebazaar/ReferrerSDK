@@ -1,7 +1,7 @@
 ext {
 
     libraryVersions = [
-            'kotlin'   : '1.5.20',
+            'kotlin'   : '1.7.21',
             'corektx': '1.6.0',
             'appcompat': '1.3.1',
             'material': '1.4.0',
@@ -11,18 +11,17 @@ ext {
     ]
 
     pluginVersions = [
-            'gradle'      : '7.0.0',
-            'androidmaven': '1.4.1',
-            'detekt'      : '1.1.1'
+            'gradle'      : '7.4.2',
+            'detekt'      : '1.22.0'
     ]
 
     buildVersions = [
-            'compileSdkVersion': 30,
-            'buildToolsVersion': '31.0.0',
+            'compileSdkVersion': 34,
+            'buildToolsVersion': '34.0.0',
             'minSdkVersion'    : 17,
             'targetSdkVersion' : 30
     ]
 
-    referrerSDKVersion = "1.0.0"
+    referrerSDKVersion = "1.1.1"
 
 }

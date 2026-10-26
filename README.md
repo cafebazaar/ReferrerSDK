@@ -13,7 +13,7 @@ Then you need to add jitpack as your maven repository in `build.gradle`  file:
 ```groovy
 repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven { url 'https://jitpack.io' }
     }
 ```
